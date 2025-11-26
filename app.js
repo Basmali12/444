@@ -1,359 +1,551 @@
-// ============= تهيئة Firebase =============
+// ===== 1) إعداد Firebase =====
 const firebaseConfig = {
   apiKey: "AIzaSyBPapPdivEQO1UPqQdCRTBI6ct8KZDtqyw",
   authDomain: "sjfie-bed64.firebaseapp.com",
   projectId: "sjfie-bed64",
   storageBucket: "sjfie-bed64.firebasestorage.app",
   messagingSenderId: "67450727104",
-  appId: "1:67450727104:web:4d271f44bab9740571db25",
+  appId: "1:67450727104:web:4d271f44bab9740571db25"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-const auth = firebase.auth();
 
-// ============= متغيرات =============
-let currentUser = null;
-let currentUserName = "مستخدم";
-let activeFilter = "all";
-let roomsUnsub = null;
+// ===== 2) متغيرات عامة =====
+let myUid = null;
+let myName = "";
+let myAvatar = "";
+let currentRoomId = null;
+let currentRoomTitle = "";
+let currentRoomSubtitle = "";
 let messagesUnsub = null;
-let activeRoomId = null;
+let isRecording = false;
+let mediaRecorder = null;
+let audioChunks = [];
+let micToastTimeout = null;
 
-// ============= دوال واجهة عامة =============
+// عناصر DOM
+const appEl = document.getElementById("app");
+const nameModal = document.getElementById("nameModal");
+const nameInput = document.getElementById("nameInput");
+const nameError = document.getElementById("nameError");
+const headerSubtitle = document.getElementById("headerSubtitle");
+const messagesList = document.getElementById("messagesList");
+const msgInput = document.getElementById("msgInput");
+const micBtn = document.getElementById("micBtn");
+const imgInput = document.getElementById("imgInput");
+const usersList = document.getElementById("usersList");
+const voiceRoomsList = document.getElementById("voiceRoomsList");
+const voiceMicsBar = document.getElementById("voiceMicsBar");
+const micToast = document.getElementById("micToast");
 
-// زر الرجوع – عدل الرابط حسب تطبيقك الرئيسي
-function handleBack() {
-  // مثال: يرجع لصفحة الشات الرئيسية:
-  // window.location.href = "https://basmali12.github.io/320/";
-  alert("هنا اربط رجوع للواجهة الرئيسية (رابط شات أبو أمير).");
-}
-
-function forceReloadUser() {
-  if (!currentUser) return;
-  updateUserLabel();
-}
-
-// تحديث اسم المستخدم في الأعلى
-function updateUserLabel() {
-  const el = document.getElementById("userNameLabel");
-  if (!currentUser) {
-    el.textContent = "دخول مجهول (لم يتم تسجيل الدخول)";
-    return;
+// ===== 3) تهيئة عند تحميل الصفحة =====
+window.addEventListener("load", () => {
+  // uid ثابت لكل جهاز
+  myUid = localStorage.getItem("chat_uid");
+  if (!myUid) {
+    myUid = "u_" + Date.now() + "_" + Math.floor(Math.random() * 999999);
+    localStorage.setItem("chat_uid", myUid);
   }
-  currentUserName =
-    currentUser.displayName ||
-    (currentUser.email ? currentUser.email.split("@")[0] : "مستخدم");
 
-  el.textContent = `مرحباً، ${currentUserName}`;
-}
+  const storedName = localStorage.getItem("chat_display_name");
+  const storedAvatar = localStorage.getItem("chat_avatar");
 
-// ============= Auth =============
-auth.onAuthStateChanged(async (user) => {
-  if (user) {
-    currentUser = user;
-    updateUserLabel();
-    startRoomsListener();
+  if (storedName && storedName.trim()) {
+    myName = storedName.trim();
+    myAvatar = storedAvatar || "";
+    nameModal.style.display = "none";
+    appEl.style.display = "flex";
+    updateAvatarPreview();
+    saveUserDoc();
+    goHome();
   } else {
-    // ماكو مستخدم؟ نسجل مجهول لكن حقيقي على السيرفر
-    try {
-      await auth.signInAnonymously();
-    } catch (err) {
-      console.error("فشل تسجيل مجهول:", err);
-      document.getElementById("userNameLabel").textContent =
-        "فشل في الاتصال بالمصادقة.";
-    }
+    nameModal.style.display = "flex";
+    appEl.style.display = "none";
   }
+
+  // أحداث
+  msgInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  imgInput.addEventListener("change", handleImageSelect);
+
+  const avatarInput = document.getElementById("avatarInput");
+  avatarInput.addEventListener("change", handleAvatarSelect);
 });
 
-// ============= الرومات من Firestore =============
-
-function startRoomsListener() {
-  if (roomsUnsub) roomsUnsub();
-
-  roomsUnsub = db
-    .collection("voiceRooms")
-    .orderBy("createdAt", "desc")
-    .onSnapshot(
-      (snap) => {
-        const rooms = [];
-        snap.forEach((doc) => {
-          rooms.push({ id: doc.id, ...doc.data() });
-        });
-        renderRoomsList(rooms);
-      },
-      (err) => {
-        console.error("خطأ جلب الرومات:", err);
-      }
-    );
-}
-
-function changeFilter(filter, btn) {
-  activeFilter = filter;
-  document
-    .querySelectorAll(".filter-chip")
-    .forEach((c) => c.classList.remove("active"));
-  btn.classList.add("active");
-  // سيتم التصفية داخل renderRoomsList
-}
-
-function renderRoomsList(allRooms) {
-  const list = document.getElementById("roomsList");
-  list.innerHTML = "";
-
-  const rooms = allRooms.filter((room) => {
-    if (activeFilter === "all") return true;
-    return room.type === activeFilter;
-  });
-
-  if (!rooms.length) {
-    list.innerHTML =
-      '<div style="text-align:center; font-size:12px; color:#9ca3af; margin-top:10px;">لا توجد رومات في هذا القسم حالياً.</div>';
+// ===== 4) الدخول بالاسم فقط =====
+function enterWithName() {
+  const name = (nameInput.value || "").trim();
+  if (!name) {
+    nameError.textContent = "الرجاء إدخال اسم.";
     return;
   }
+  myName = name;
+  localStorage.setItem("chat_display_name", myName);
+  nameError.textContent = "";
+  nameInput.value = "";
 
-  rooms.forEach((room) => {
-    const card = document.createElement("div");
-    card.className = "room-card";
+  nameModal.style.display = "none";
+  appEl.style.display = "flex";
 
-    const listeners = room.listenersCount || 0;
-    const isLocked = !!room.isLocked;
-    const type = room.type || "عام";
-
-    card.innerHTML = `
-      <div class="room-main-row">
-        <div>
-          <div class="room-title">${room.title || "بدون عنوان"}</div>
-          <div class="room-subtitle">${room.desc || ""}</div>
-        </div>
-        <button class="room-join-btn" onclick="enterRoom('${room.id}')">
-          <i class="fa-solid fa-door-open"></i>
-          دخول
-        </button>
-      </div>
-      <div class="room-meta-row">
-        <div class="room-tags">
-          <span class="room-tag-pill">
-            <i class="fa-solid fa-tag"></i>${type}
-          </span>
-          ${
-            isLocked
-              ? '<span class="room-tag-pill lock"><i class="fa-solid fa-lock"></i>مقفلة</span>'
-              : '<span class="room-tag-pill"><i class="fa-solid fa-unlock"></i>مفتوحة</span>'
-          }
-          <span class="room-tag-pill voice-only">
-            <i class="fa-solid fa-microphone"></i>صوتي فقط
-          </span>
-        </div>
-        <div class="room-users">
-          <i class="fa-solid fa-user-group"></i>
-          <span>${listeners} متواجد</span>
-        </div>
-      </div>
-    `;
-
-    list.appendChild(card);
-  });
+  updateAvatarPreview();
+  saveUserDoc();
+  goHome();
 }
 
-// إنشاء روم جديد
-async function createRoomPrompt() {
-  const title = prompt("اسم الروم الصوتي:");
-  if (!title) return;
+function goHome() {
+  stopMessagesListener();
+  currentRoomId = null;
+  updateVoiceMicsVisibility();
+  showScreen("homeScreen");
+  headerSubtitle.textContent = "الواجهة الرئيسية";
+}
 
-  const type =
-    prompt(
-      "نوع الروم (تعارف / سوالف / ألعاب / صدافة / إشعارات):",
-      "تعارف"
-    ) || "تعارف";
+// ===== 5) شاشة التنقل =====
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach((s) => s.classList.remove("active"));
+  const el = document.getElementById(id);
+  if (el) el.classList.add("active");
+}
 
-  const desc = prompt("وصف بسيط للروم:", "جلسة دردشة صوتية") || "";
+function handleBack() {
+  goHome();
+}
 
-  try {
-    await db.collection("voiceRooms").add({
-      title,
-      type,
-      desc,
-      isLocked: false,
-      listenersCount: 0,
-      hostUid: currentUser ? currentUser.uid : null,
-      hostName: currentUserName,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    });
-    alert("تم إنشاء الروم بنجاح ✅");
-  } catch (err) {
-    console.error(err);
-    alert("فشل إنشاء الروم: " + err.message);
+// ===== 6) فتح روم (عام / مجموعة / صوتي / خاص) =====
+function openRoom(roomId, title, subtitle) {
+  currentRoomId = roomId;
+  currentRoomTitle = title;
+  currentRoomSubtitle = subtitle || roomId;
+
+  document.getElementById("chatTitle").textContent = currentRoomTitle;
+  document.getElementById("chatRoomLabel").textContent = currentRoomSubtitle;
+
+  updateVoiceMicsVisibility();
+
+  showScreen("chatScreen");
+  headerSubtitle.textContent = "غرفة: " + currentRoomTitle;
+
+  startMessagesListener();
+}
+
+// إظهار/إخفاء شريط المايكات حسب نوع الروم
+function updateVoiceMicsVisibility() {
+  if (currentRoomId && currentRoomId.startsWith("voice_")) {
+    voiceMicsBar.style.display = "flex";
+  } else {
+    voiceMicsBar.style.display = "none";
   }
 }
 
-// ============= الدخول إلى روم =============
-async function enterRoom(roomId) {
-  activeRoomId = roomId;
+function startMessagesListener() {
+  stopMessagesListener();
+  if (!currentRoomId) return;
 
-  // زيادة عدد المتواجدين
-  try {
-    await db
-      .collection("voiceRooms")
-      .doc(roomId)
-      .update({
-        listenersCount: firebase.firestore.FieldValue.increment(1),
+  messagesUnsub = db.collection("messages")
+    .where("room", "==", currentRoomId)
+    .orderBy("timestamp", "asc")
+    .onSnapshot((snapshot) => {
+      messagesList.innerHTML = "";
+      snapshot.forEach((doc) => {
+        const msg = doc.data();
+        renderMessage(msg);
       });
-  } catch (e) {
-    console.warn("تعذر تحديث عدد المتواجدين:", e.message);
-  }
-
-  // قراءة بيانات الروم مرة واحدة
-  const doc = await db.collection("voiceRooms").doc(roomId).get();
-  if (!doc.exists) {
-    alert("الروم غير موجود.");
-    return;
-  }
-  const room = doc.data();
-
-  document.getElementById("roomTitle").textContent = room.title || "بدون عنوان";
-  document.getElementById("roomSubTitle").textContent =
-    room.desc || "روم صوتي";
-
-  document.getElementById(
-    "roomListeners"
-  ).innerHTML = `<i class="fa-solid fa-user"></i> ${
-    room.listenersCount || 0
-  } متواجد`;
-
-  renderMicsGrid(room);
-
-  // إظهار شاشة الروم
-  document.getElementById("roomsScreen").classList.remove("screen-active");
-  document.getElementById("roomScreen").classList.add("screen-active");
-
-  // بدء الاستماع للرسائل
-  startMessagesListener(roomId);
+      scrollToBottom();
+    });
 }
 
-// الخروج من الروم
-async function closeRoom() {
-  if (activeRoomId) {
-    try {
-      await db
-        .collection("voiceRooms")
-        .doc(activeRoomId)
-        .update({
-          listenersCount: firebase.firestore.FieldValue.increment(-1),
-        });
-    } catch (e) {
-      console.warn("تعذر تخفيض عدد المتواجدين:", e.message);
-    }
-  }
-
+function stopMessagesListener() {
   if (messagesUnsub) {
     messagesUnsub();
     messagesUnsub = null;
   }
-
-  activeRoomId = null;
-
-  document.getElementById("roomScreen").classList.remove("screen-active");
-  document.getElementById("roomsScreen").classList.add("screen-active");
 }
 
-// ============= شبكة المايكات (شكل فقط حالياً) =============
-function renderMicsGrid(room) {
-  const grid = document.querySelector(".mics-grid");
-  grid.innerHTML = "";
+// ===== 7) رسم رسالة =====
+function renderMessage(msg) {
+  const div = document.createElement("div");
+  const isMine = msg.senderId === myUid;
 
-  const hostName = room.hostName || "المضيف";
-  const names = [hostName, "زهراء", "محمد", "سارة", "حسين", "مريم", "علي", "نور", "حسن", "رنا"];
+  div.className = "message " + (isMine ? "mine" : "other");
 
-  names.slice(0, 10).forEach((name, index) => {
-    const item = document.createElement("div");
-    item.className = "mic-item";
+  const timeText = msg.timestamp
+    ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    : "";
 
-    const letter = name.trim().charAt(0);
+  let inner = "";
 
-    item.innerHTML = `
-      <div class="mic-avatar">
-        <span>${letter}</span>
-      </div>
-      <div class="mic-name">${name}</div>
-      ${
-        index === 0
-          ? '<div class="mic-muted"><i class="fa-solid fa-crown"></i> المضيف</div>'
-          : ""
-      }
-    `;
+  if (!isMine) {
+    inner += `<div class="msg-header">`;
+    if (msg.senderAvatar) {
+      inner += `<img class="msg-avatar" src="${msg.senderAvatar}" alt="">`;
+    } else {
+      const initial = (msg.senderName || "?").slice(0,1);
+      inner += `<div class="msg-avatar" style="display:flex;align-items:center;justify-content:center;font-size:12px;">${initial}</div>`;
+    }
+    inner += `<span class="msg-sender">${msg.senderName || "مستخدم"}</span>`;
+    inner += `</div>`;
+  }
 
-    grid.appendChild(item);
+  if (msg.type === "image") {
+    inner += `<img src="${msg.content}" class="msg-img">`;
+  } else if (msg.type === "audio") {
+    inner += `<audio controls src="${msg.content}"></audio>`;
+  } else {
+    inner += `<div class="msg-text">${msg.content || ""}</div>`;
+  }
+
+  inner += `<div class="msg-time">${timeText}</div>`;
+
+  div.innerHTML = inner;
+  messagesList.appendChild(div);
+}
+
+function scrollToBottom() {
+  messagesList.scrollTop = messagesList.scrollHeight;
+}
+
+// ===== 8) إرسال رسالة =====
+function sendMessage() {
+  const text = (msgInput.value || "").trim();
+  if (!text || !currentRoomId) return;
+
+  pushMessageToFirestore(text, "text");
+  msgInput.value = "";
+}
+
+function pushMessageToFirestore(content, type) {
+  if (!myName || !currentRoomId) return;
+
+  db.collection("messages").add({
+    room: currentRoomId,
+    senderId: myUid,
+    senderName: myName,
+    senderAvatar: myAvatar || null,
+    type: type,
+    content: content,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
   });
 }
 
-// ============= رسائل الروم من Firestore =============
-function startMessagesListener(roomId) {
-  if (messagesUnsub) messagesUnsub();
+// ===== 9) صور الرسائل =====
+function handleImageSelect(e) {
+  const file = e.target.files[0];
+  if (!file || !currentRoomId) return;
 
-  messagesUnsub = db
-    .collection("voiceRooms")
-    .doc(roomId)
-    .collection("messages")
-    .orderBy("timestamp", "asc")
-    .onSnapshot(
-      (snap) => {
-        const container = document.getElementById("roomMessages");
-        container.innerHTML = "";
-        snap.forEach((doc) => {
-          const m = doc.data();
-          const div = document.createElement("div");
-          div.className = "room-msg";
-          div.innerHTML = `<span>${m.senderName}:</span> ${m.text}`;
-          container.appendChild(div);
-        });
-        container.scrollTop = container.scrollHeight;
-      },
-      (err) => {
-        console.error("خطأ في رسائل الروم:", err);
-      }
-    );
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const img = new Image();
+    img.src = ev.target.result;
+    img.onload = function() {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const maxW = 600;
+      const scale = Math.min(1, maxW / img.width);
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+      pushMessageToFirestore(dataUrl, "image");
+      imgInput.value = "";
+    };
+  };
+  reader.readAsDataURL(file);
 }
 
-async function sendRoomMessage() {
-  if (!activeRoomId) return;
-  const input = document.getElementById("roomMsgInput");
-  const text = input.value.trim();
-  if (!text) return;
+// ===== 10) تسجيل صوت =====
+async function toggleRecording() {
+  if (!currentRoomId) {
+    alert("أدخل غرفة أولاً.");
+    return;
+  }
+  if (!isRecording) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+      mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(audioChunks, { type: "audio/webm" });
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onloadend = () => {
+          pushMessageToFirestore(reader.result, "audio");
+        };
+      };
+      mediaRecorder.start();
+      isRecording = true;
+      micBtn.classList.add("recording");
+      setTimeout(() => {
+        if (isRecording) toggleRecording();
+      }, 60000);
+    } catch (err) {
+      alert("يجب السماح بالمايكروفون.");
+    }
+  } else {
+    mediaRecorder.stop();
+    isRecording = false;
+    micBtn.classList.remove("recording");
+  }
+}
 
-  try {
-    await db
-      .collection("voiceRooms")
-      .doc(activeRoomId)
-      .collection("messages")
-      .add({
-        text,
-        senderUid: currentUser ? currentUser.uid : null,
-        senderName: currentUserName,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+// ===== 11) الملف الشخصي =====
+function openProfile() {
+  document.getElementById("profileNameInput").value = myName || "";
+  document.getElementById("profileError").textContent = "";
+  updateAvatarPreview();
+  document.getElementById("profileModal").style.display = "flex";
+}
+
+function closeProfile() {
+  document.getElementById("profileModal").style.display = "none";
+}
+
+function updateAvatarPreview() {
+  const avatarPreview = document.getElementById("avatarPreview");
+  if (myAvatar) {
+    avatarPreview.src = myAvatar;
+  } else {
+    const baseName = myName || "U";
+    avatarPreview.src =
+      "https://ui-avatars.com/api/?name=" +
+      encodeURIComponent(baseName) +
+      "&background=111827&color=fff";
+  }
+}
+
+function handleAvatarSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    myAvatar = ev.target.result;
+    localStorage.setItem("chat_avatar", myAvatar);
+    updateAvatarPreview();
+    saveUserDoc();
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveProfile() {
+  const newName = (document.getElementById("profileNameInput").value || "").trim();
+  const err = document.getElementById("profileError");
+  if (!newName) {
+    err.textContent = "الرجاء إدخال اسم صحيح.";
+    return;
+  }
+  myName = newName;
+  localStorage.setItem("chat_display_name", myName);
+  err.textContent = "تم حفظ الاسم.";
+  saveUserDoc();
+  setTimeout(() => closeProfile(), 800);
+}
+
+// حفظ المستخدم في كولكشن users
+function saveUserDoc() {
+  if (!myUid) return;
+  db.collection("users").doc(myUid).set(
+    {
+      uid: myUid,
+      displayName: myName || "مستخدم",
+      avatar: myAvatar || null,
+      lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+    },
+    { merge: true }
+  );
+}
+
+// ===== 12) شاشة المستخدمين + دردشة خاصة =====
+function openUsersScreen() {
+  showScreen("usersScreen");
+  headerSubtitle.textContent = "المستخدمون";
+  loadUsersList();
+}
+
+function loadUsersList() {
+  usersList.innerHTML = "جارِ التحميل...";
+  db.collection("users")
+    .orderBy("lastSeen", "desc")
+    .limit(100)
+    .get()
+    .then((snapshot) => {
+      usersList.innerHTML = "";
+      snapshot.forEach((doc) => {
+        const u = doc.data();
+        if (!u.uid || u.uid === myUid) return; // لا تعرض نفسك
+
+        const item = document.createElement("div");
+        item.className = "user-item";
+        item.onclick = () => openPrivateChat(u.uid, u.displayName || "مستخدم");
+
+        let avatarHtml = "";
+        if (u.avatar) {
+          avatarHtml = `<img src="${u.avatar}" alt="">`;
+        } else {
+          const initial = (u.displayName || "م").slice(0, 1);
+          avatarHtml = `<span class="user-initial">${initial}</span>`;
+        }
+
+        item.innerHTML = `
+          <div class="user-avatar">${avatarHtml}</div>
+          <div class="user-info">
+            <h4>${u.displayName || "مستخدم"}</h4>
+            <p>دردشة خاصة</p>
+          </div>
+        `;
+        usersList.appendChild(item);
       });
-    input.value = "";
-  } catch (err) {
-    console.error(err);
-    alert("فشل إرسال الرسالة: " + err.message);
-  }
+      if (!usersList.innerHTML.trim()) {
+        usersList.innerHTML = "<p>ماكو مستخدمين غيرك حالياً.</p>";
+      }
+    })
+    .catch(() => {
+      usersList.innerHTML = "<p>خطأ في تحميل المستخدمين.</p>";
+    });
 }
 
-function roomInputKey(e) {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    sendRoomMessage();
-  }
+// روم خاص بيني وبين مستخدم ثاني
+function openPrivateChat(otherUid, otherName) {
+  const ids = [myUid, otherUid].sort();
+  const roomId = "dm_" + ids[0] + "_" + ids[1];
+  openRoom(roomId, "دردشة خاصة", "مع: " + otherName);
 }
 
-// عند إغلاق الصفحة حاول نقلل عدد المتواجدين
-window.addEventListener("beforeunload", () => {
-  if (activeRoomId) {
-    db.collection("voiceRooms")
-      .doc(activeRoomId)
-      .update({
-        listenersCount: firebase.firestore.FieldValue.increment(-1),
-      })
-      .catch(() => {});
+// ===== 13) شاشة المجموعات =====
+function openGroupsScreen() {
+  showScreen("groupsScreen");
+  headerSubtitle.textContent = "المجموعات";
+}
+
+// ===== 14) الرومات الصوتية =====
+let currentVoiceFilter = "all";
+
+function openVoiceRoomsScreen() {
+  showScreen("voiceRoomsScreen");
+  headerSubtitle.textContent = "الغرف الصوتية";
+  loadVoiceRooms();
+}
+
+function createVoiceRoom() {
+  const name = prompt("اسم الروم الصوتي:");
+  if (!name) return;
+  const cat =
+    prompt("فئة الروم (taarof / games / swalif / friends):", "swalif") || "swalif";
+
+  db.collection("voiceRooms")
+    .add({
+      name,
+      category: cat,
+      ownerId: myUid,
+      ownerName: myName || "مستخدم",
+      listenersCount: 1,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then(() => {
+      loadVoiceRooms();
+    });
+}
+
+function loadVoiceRooms() {
+  voiceRoomsList.innerHTML = "جارِ التحميل...";
+  db.collection("voiceRooms")
+    .orderBy("createdAt", "desc")
+    .limit(50)
+    .get()
+    .then((snapshot) => {
+      voiceRoomsList.innerHTML = "";
+      snapshot.forEach((doc) => {
+        const r = doc.data();
+        if (currentVoiceFilter !== "all" && r.category !== currentVoiceFilter) return;
+
+        const card = document.createElement("div");
+        card.className = "room-card";
+
+        const listeners = r.listenersCount || 0;
+
+        card.innerHTML = `
+          <div class="room-header">
+            <div>
+              <div class="room-title">${r.name}</div>
+              <div class="room-category">${r.category || "عام"}</div>
+            </div>
+            <i class="fa-solid fa-microphone-lines"></i>
+          </div>
+          <div class="room-meta">
+            <span><i class="fa-solid fa-user"></i> ${listeners} متواجد</span>
+          </div>
+          <div class="room-footer">
+            <span>شات + صوت (تسجيلات)</span>
+            <button class="join-room-btn" onclick="joinVoiceRoom('${doc.id}','${r.name.replace(/'/g,"\\'")}')">
+              دخول الروم
+            </button>
+          </div>
+        `;
+        voiceRoomsList.appendChild(card);
+      });
+
+      if (!voiceRoomsList.innerHTML.trim()) {
+        voiceRoomsList.innerHTML =
+          "<p>ماكو رومات بعد. أنشئ واحد من الزر بالأعلى.</p>";
+      }
+    })
+    .catch(() => {
+      voiceRoomsList.innerHTML = "<p>خطأ في تحميل الرومات.</p>";
+    });
+}
+
+function filterVoiceRooms(cat) {
+  currentVoiceFilter = cat;
+  document
+    .querySelectorAll(".voice-tab")
+    .forEach((btn) => btn.classList.toggle("active", btn.dataset.filter === cat));
+  loadVoiceRooms();
+}
+
+function joinVoiceRoom(docId, name) {
+  const roomId = "voice_" + docId;
+  openRoom(roomId, "🎧 " + name, "روم صوتي + دردشة");
+  db.collection("voiceRooms")
+    .doc(docId)
+    .update({
+      listenersCount: firebase.firestore.FieldValue.increment(1)
+    })
+    .catch(() => {});
+}
+
+// ===== 15) TOAST المايك =====
+function showMicToast() {
+  if (!micToast) return;
+  micToast.style.display = "block";
+  // trigger transition
+  requestAnimationFrame(() => {
+    micToast.classList.add("show");
+  });
+
+  if (micToastTimeout) clearTimeout(micToastTimeout);
+  micToastTimeout = setTimeout(() => {
+    hideMicToast();
+  }, 3500);
+}
+
+function hideMicToast() {
+  if (!micToast) return;
+  micToast.classList.remove("show");
+  micToastTimeout = setTimeout(() => {
+    micToast.style.display = "none";
+  }, 250);
+}
+
+// ضغط المايكات في الروم الصوتي
+function handleMicClick(slot) {
+  if (!currentRoomId || !currentRoomId.startsWith("voice_")) {
+    return;
   }
-});
+  showMicToast();
+}
