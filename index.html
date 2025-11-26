@@ -9,17 +9,16 @@
   <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
-  <!-- ملف التنسيقات -->
+  <!-- ستايل -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="app">
 
-    <!-- شريط تنبيه مؤقت (تقدر تحذفه) -->
+    <!-- تنبيه خفيف فوق (تقدر تحذفه) -->
     <div class="top-note">
-      basmali12.github.io يعرض موقع
-      <br />
-      هنا تربط زر الرجوع بالواجهة الرئيسية لتطبيقك
+      basmali12.github.io يعرض موقع<br>
+      زر الرجوع يرجعك للواجهة الرئيسية لتطبيقك.
     </div>
 
     <!-- الهيدر -->
@@ -40,6 +39,14 @@
     <main id="roomsScreen" class="screen screen-active">
       <section class="rooms-screen-body">
 
+        <!-- معلومات المستخدم -->
+        <div class="user-bar">
+          <span id="userNameLabel">جارِ التحميل...</span>
+          <button class="user-refresh" onclick="forceReloadUser()">
+            <i class="fa-solid fa-rotate-right"></i>
+          </button>
+        </div>
+
         <!-- زر إنشاء روم -->
         <button class="create-room-btn" onclick="createRoomPrompt()">
           <span>
@@ -49,7 +56,7 @@
           <i class="fa-solid fa-headphones"></i>
         </button>
 
-        <!-- فلاتر الأنواع -->
+        <!-- فلاتر -->
         <div class="room-filters">
           <button class="filter-chip active" data-filter="all" onclick="changeFilter('all', this)">الكل</button>
           <button class="filter-chip" data-filter="تعارف" onclick="changeFilter('تعارف', this)">تعارف</button>
@@ -73,7 +80,7 @@
         </button>
         <div class="room-header-center">
           <div id="roomTitle" class="room-title">عنوان الروم</div>
-          <div id="roomSubTitle" class="room-subtitle">نوع الروم</div>
+          <div id="roomSubTitle" class="room-subtitle">وصف الروم</div>
         </div>
         <button class="room-settings-btn">
           <i class="fa-solid fa-ellipsis-vertical"></i>
@@ -82,9 +89,9 @@
 
       <div class="room-body">
 
-        <!-- شبكة المايكات (5 فوق + 5 تحت) -->
+        <!-- شبكة المايكات -->
         <div class="mics-grid">
-          <!-- يتعبّي ديناميكي من app.js -->
+          <!-- يملأ من js -->
         </div>
 
         <!-- عدد الموجودين -->
@@ -93,11 +100,13 @@
           <span><i class="fa-solid fa-volume-high"></i> صوتي فقط</span>
         </div>
 
-        <!-- شات النص داخل الروم (تجريبي) -->
+        <!-- شات الروم -->
         <div class="room-chat">
           <div id="roomMessages" class="room-messages"></div>
           <div class="room-chat-input">
-            <input id="roomMsgInput" type="text" placeholder="اكتب رسالة للجميع في الروم..."
+            <input id="roomMsgInput"
+                   type="text"
+                   placeholder="اكتب رسالة للجميع في الروم..."
                    onkeypress="roomInputKey(event)" />
             <button onclick="sendRoomMessage()">
               <i class="fa-solid fa-paper-plane"></i>
@@ -109,7 +118,12 @@
 
   </div>
 
-  <!-- ملف الجافاسكربت -->
+  <!-- Firebase compat -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+  <!-- كود التطبيق -->
   <script src="app.js"></script>
 </body>
 </html>
