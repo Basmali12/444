@@ -5,7 +5,6 @@
   <title>تجربة صوت WebRTC – شات أبو أمير</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- ستايل بسيط غامق -->
   <style>
     body {
       margin: 0;
@@ -24,31 +23,11 @@
       padding: 18px 16px 20px;
       box-shadow: 0 20px 40px rgba(15, 23, 42, 0.9);
     }
-    h1 {
-      font-size: 20px;
-      margin: 0 0 4px;
-    }
-    .subtitle {
-      font-size: 12px;
-      color: #9ca3af;
-      margin-bottom: 14px;
-    }
-    .section {
-      margin-top: 14px;
-      padding-top: 10px;
-      border-top: 1px solid rgba(55, 65, 81, 0.7);
-    }
-    .label {
-      font-size: 13px;
-      margin-bottom: 6px;
-      font-weight: 600;
-    }
-    .btn-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
+    h1 { font-size: 20px; margin: 0 0 4px; }
+    .subtitle { font-size: 12px; color: #9ca3af; margin-bottom: 14px; }
+    .section { margin-top: 14px; padding-top: 10px; border-top: 1px solid rgba(55, 65, 81, 0.7); }
+    .label { font-size: 13px; margin-bottom: 6px; font-weight: 600; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
     button {
       border-radius: 999px;
       border: none;
@@ -70,17 +49,8 @@
       background: linear-gradient(135deg, #f97316, #b91c1c);
       box-shadow: 0 0 15px rgba(248, 113, 113, 0.8);
     }
-    button:disabled {
-      opacity: 0.4;
-      cursor: default;
-      box-shadow: none;
-    }
-    .status {
-      font-size: 12px;
-      color: #a5b4fc;
-      margin-top: 4px;
-      min-height: 18px;
-    }
+    button:disabled { opacity: 0.4; cursor: default; box-shadow: none; }
+    .status { font-size: 12px; color: #a5b4fc; margin-top: 4px; min-height: 18px; }
     .log {
       margin-top: 8px;
       font-size: 11px;
@@ -102,14 +72,8 @@
       border: 1px solid rgba(55, 65, 81, 0.7);
       font-size: 12px;
     }
-    .audio-box p {
-      margin: 0 0 6px;
-      font-size: 12px;
-      color: #cbd5f5;
-    }
-    audio {
-      width: 100%;
-    }
+    .audio-box p { margin: 0 0 6px; font-size: 12px; color: #cbd5f5; }
+    audio { width: 100%; }
     .badge {
       display: inline-flex;
       align-items: center;
@@ -173,7 +137,7 @@
   </div>
 
   <div class="section">
-    <div class="label">سجل الأحداث (للمتابعة / كشف الأخطاء)</div>
+    <div class="label">سجل الأحداث (لكشف الأخطاء)</div>
     <div id="log" class="log"></div>
   </div>
 
@@ -183,7 +147,7 @@
       <span>roomId ثابت: <b>audio_room_test_1</b></span>
     </span>
     <div style="margin-top:4px;">
-      كلا الجهازين لازم يفتحون <b>نفس الرابط</b> لهذا الملف من GitHub Pages، واحد يسوي إنشاء، الثاني انضمام.
+      كلا الجهازين لازم يفتحون <b>نفس الرابط</b> لهذا الملف، واحد يسوي إنشاء، الثاني انضمام.
     </div>
   </div>
 </div>
@@ -193,7 +157,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
 <script>
-  // إعداد Firebase (نفس مشروعك)
   const firebaseConfig = {
     apiKey: "AIzaSyBPapPdivEQO1UPqQdCRTBI6ct8KZDtqyw",
     authDomain: "sjfie-bed64.firebaseapp.com",
@@ -203,15 +166,11 @@
     appId: "1:67450727104:web:4d271f44bab9740571db25"
   };
 
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  // room ثابت للتجربة
   const ROOM_ID = "audio_room_test_1";
 
-  // عناصر HTML
   const logBox       = document.getElementById("log");
   const micStatus    = document.getElementById("micStatus");
   const roomStatus   = document.getElementById("roomStatus");
@@ -221,7 +180,6 @@
   const btnJoin      = document.getElementById("btnJoin");
   const btnHangup    = document.getElementById("btnHangup");
 
-  // WebRTC
   const servers = {
     iceServers: [
       { urls: [ "stun:stun.l.google.com:19302" ] }
@@ -244,16 +202,15 @@
     logBox.scrollTop = logBox.scrollHeight;
   }
 
-  // 1) تشغيل المايك
   async function startMic() {
     try {
       localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-      micStatus.textContent = "✅ المايك اشتغل، تقدر تكمل للخطوة ٢.";
+      micStatus.textContent = "✅ المايك اشتغل، كمل للخطوة ٢ (إنشاء / انضمام).";
       btnCreate.disabled = false;
       btnJoin.disabled = false;
       addLog("localStream ready (audio).");
     } catch (e) {
-      micStatus.textContent = "❌ فشل تشغيل المايك. تأكد من السماح للمتصفح بالوصول للميكروفون.";
+      micStatus.textContent = "❌ فشل تشغيل المايك. فعّل الإذن من إعدادات المتصفح.";
       addLog("Error getUserMedia: " + e.message);
     }
   }
@@ -262,54 +219,59 @@
     pc = new RTCPeerConnection(servers);
     addLog("RTCPeerConnection created.");
 
-    // tracks الصوت
     if (localStream) {
       localStream.getTracks().forEach(track => {
         pc.addTrack(track, localStream);
       });
-      addLog("Local audio track(s) added to PC.");
+      addLog("Local audio track(s) added.");
     }
 
     remoteStream = new MediaStream();
     remoteAudio.srcObject = remoteStream;
 
     pc.ontrack = (event) => {
-      addLog("ontrack fired, adding remote audio track(s).");
-      event.streams[0].getAudioTracks().forEach(track => {
+      addLog("ontrack: remote audio streams received.");
+      const incomingStream = event.streams[0];
+      incomingStream.getAudioTracks().forEach(track => {
         remoteStream.addTrack(track);
       });
+
+      // محاولة تشغيل الصوت (لو المتصفح حاجب autoplay)
+      remoteAudio.play().catch(err => {
+        addLog("Autoplay blocked, user must press play on audio element. " + err.message);
+      });
+    };
+
+    pc.oniceconnectionstatechange = () => {
+      addLog("iceConnectionState: " + pc.iceConnectionState);
+      if (pc.iceConnectionState === "connected") {
+        roomStatus.textContent = "✅ الاتصال الصوتي شغال بين الجهازين.";
+      } else if (pc.iceConnectionState === "failed") {
+        roomStatus.textContent = "❌ الاتصال فشل (غالباً من نوع الشبكة / NAT).";
+      }
+    };
+
+    pc.onconnectionstatechange = () => {
+      addLog("connectionState: " + pc.connectionState);
     };
 
     pc.onicecandidate = (event) => {
       if (!event.candidate) {
-        addLog("All ICE candidates sent.");
-        return;
-      }
-      addLog("New ICE candidate.");
-    };
-
-    pc.onconnectionstatechange = () => {
-      addLog("Connection state: " + pc.connectionState);
-      if (pc.connectionState === "connected") {
-        roomStatus.textContent = "✅ الاتصال الصوتي شغال بين الجهازين.";
+        addLog("All ICE candidates gathered.");
       }
     };
   }
 
-  // 2) الطرف الأول – إنشاء اتصال
   async function createRoom() {
     roomStatus.textContent = "جاري إنشاء الغرفة...";
     addLog("--- createRoom() called ---");
 
-    // إنشاء PeerConnection
     createPeerConnection();
 
-    // غرفة في Firestore
     roomRef = db.collection("webrtcRooms").doc(ROOM_ID);
     callerCandidatesCollection = roomRef.collection("callerCandidates");
     calleeCandidatesCollection = roomRef.collection("calleeCandidates");
 
-    // handler للـ ICE حتى نخزنها
     pc.onicecandidate = async (event) => {
       if (event.candidate) {
         addLog("Caller ICE candidate -> Firestore.");
@@ -317,23 +279,16 @@
       }
     };
 
-    // إعداد Offer
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
     addLog("Offer created & setLocalDescription.");
 
-    const roomWithOffer = {
-      offer: {
-        type: offer.type,
-        sdp: offer.sdp
-      }
-    };
+    const roomWithOffer = { offer: { type: offer.type, sdp: offer.sdp } };
     await roomRef.set(roomWithOffer);
     addLog("Room document created with offer.");
 
-    roomStatus.textContent = "✅ تم إنشاء الاتصال. خلي صديقك يضغط: الانضمام للاتصال.";
+    roomStatus.textContent = "✅ تم إنشاء الاتصال. خلي صديقك يضغط (الانضمام للاتصال).";
 
-    // نراقب متى الطرف الثاني يضيف Answer
     roomRef.onSnapshot(async snap => {
       const data = snap.data();
       if (!pc.currentRemoteDescription && data && data.answer) {
@@ -343,7 +298,6 @@
       }
     });
 
-    // نراقب calleeCandidates
     calleeCandidatesCollection.onSnapshot(snapshot => {
       snapshot.docChanges().forEach(async change => {
         if (change.type === "added") {
@@ -363,14 +317,13 @@
     btnHangup.disabled = false;
   }
 
-  // 3) الطرف الثاني – الانضمام للاتصال
   async function joinRoom() {
     roomStatus.textContent = "جاري الانضمام للغرفة...";
     addLog("--- joinRoom() called ---");
 
     const roomSnapshot = await db.collection("webrtcRooms").doc(ROOM_ID).get();
     if (!roomSnapshot.exists) {
-      roomStatus.textContent = "❌ الغرفة غير موجودة بعد. خليك الطرف الثاني وخلي صديقك يضغط إنشاء اتصال أولاً.";
+      roomStatus.textContent = "❌ الغرفة غير موجودة. خليك الطرف الثاني وخلي صديقك يضغط (إنشاء اتصال) أولاً.";
       addLog("Room not found.");
       return;
     }
@@ -381,7 +334,6 @@
 
     createPeerConnection();
 
-    // handler للـ ICE للطرف الثاني
     pc.onicecandidate = async (event) => {
       if (event.candidate) {
         addLog("Callee ICE candidate -> Firestore.");
@@ -398,16 +350,10 @@
     await pc.setLocalDescription(answer);
     addLog("Answer created & setLocalDescription.");
 
-    const roomWithAnswer = {
-      answer: {
-        type: answer.type,
-        sdp: answer.sdp
-      }
-    };
+    const roomWithAnswer = { answer: { type: answer.type, sdp: answer.sdp } };
     await roomRef.update(roomWithAnswer);
     addLog("Room updated with answer.");
 
-    // نراقب callerCandidates
     callerCandidatesCollection.onSnapshot(snapshot => {
       snapshot.docChanges().forEach(async change => {
         if (change.type === "added") {
@@ -428,7 +374,6 @@
     roomStatus.textContent = "تم الانضمام. انتظر لحين الاتصال...";
   }
 
-  // 4) إنهاء الاتصال
   async function hangUp() {
     addLog("--- hangUp() called ---");
     roomStatus.textContent = "تم إنهاء الاتصال.";
@@ -443,10 +388,8 @@
     }
 
     if (roomRef) {
-      // نقدر نخلي الدوكيمنت، لكن نحذف الـ candidates حتى نظف
       const callerCandidates = await callerCandidatesCollection.get();
       callerCandidates.forEach(doc => doc.ref.delete());
-
       const calleeCandidates = await calleeCandidatesCollection.get();
       calleeCandidates.forEach(doc => doc.ref.delete());
     }
@@ -456,7 +399,6 @@
     btnHangup.disabled = true;
   }
 
-  // نفعّل الدوال في الـ window لو احتجنا
   window.startMic = startMic;
   window.createRoom = createRoom;
   window.joinRoom = joinRoom;
@@ -464,4 +406,4 @@
 </script>
 
 </body>
-  </html>
+</html>
