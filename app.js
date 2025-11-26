@@ -1,384 +1,359 @@
-// ===== بيانات الرومات + أعضاء لكل روم =====
-const roomsData = [
-  {
-    id:'r1',
-    name:'تعارف شباب وبنات محترم',
-    desc:'تعرف على ناس جدد بأدب واحترام ✨',
-    type:'t3arof',
-    icon:'t3arof',
-    isLocked:false,
-    online:14,
-    members:['باسم','زهراء','علي','نور','حسين']
-  },
-  {
-    id:'r2',
-    name:'روم الألعاب والتحديات',
-    desc:'تحديات، أسئلة، ضحك 🎮',
-    type:'games',
-    icon:'games',
-    isLocked:true,
-    online:7,
-    members:['كرار','حسن','مريم','سجاد']
-  },
-  {
-    id:'r3',
-    name:'سوالف للصبح',
-    desc:'جلسة سوالف وفضفضة ☕',
-    type:'swalif',
-    icon:'swalif',
-    isLocked:false,
-    online:9,
-    members:['أبو أمير','سارة','معصومة']
-  },
-  {
-    id:'r4',
-    name:'غرفة صداقة حقيقية',
-    desc:'صداقة بدون تمثيل 🤝',
-    type:'friends',
-    icon:'friends',
-    isLocked:false,
-    online:11,
-    members:['محمد','زينب','حسن','زهراء']
-  },
-  {
-    id:'r5',
-    name:'إشعارات صاحب التطبيق',
-    desc:'إعلانات مهمة للجميع 📢',
-    type:'notify',
-    icon:'notify',
-    isLocked:true,
-    online:3,
-    members:['أبو أمير','حيدر','فاطمة']
-  },
-  {
-    id:'r6',
-    name:'ضحك ونكت وميمز',
-    desc:'ضحك وتفاهة محترمة 😂',
-    type:'funny',
-    icon:'funny',
-    isLocked:false,
-    online:15,
-    members:['نور','حسين','كرار','زهراء','علي']
-  }
-];
+// ============= تهيئة Firebase =============
+const firebaseConfig = {
+  apiKey: "AIzaSyBPapPdivEQO1UPqQdCRTBI6ct8KZDtqyw",
+  authDomain: "sjfie-bed64.firebaseapp.com",
+  projectId: "sjfie-bed64",
+  storageBucket: "sjfie-bed64.firebasestorage.app",
+  messagingSenderId: "67450727104",
+  appId: "1:67450727104:web:4d271f44bab9740571db25",
+};
 
-let currentFilter = 'all';
-let micOn = false;
-let currentRoom = null;
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
 
-const roomsListEl      = document.getElementById('roomsList');
-const roomsScreen      = document.getElementById('roomsScreen');
-const roomInnerScreen  = document.getElementById('roomInnerScreen');
+// ============= متغيرات =============
+let currentUser = null;
+let currentUserName = "مستخدم";
+let activeFilter = "all";
+let roomsUnsub = null;
+let messagesUnsub = null;
+let activeRoomId = null;
 
-const innerRoomName = document.getElementById('innerRoomName');
-const innerRoomSub  = document.getElementById('innerRoomSub');
-const innerRoomMeta = document.getElementById('innerRoomMeta');
-const statUsers     = document.getElementById('statUsers');
-const micBtn        = document.getElementById('micBtn');
+// ============= دوال واجهة عامة =============
 
-const topMicsRow    = document.getElementById('topMicsRow');
-const bottomMicsRow = document.getElementById('bottomMicsRow');
-
-const roomChatMessages = document.getElementById('roomChatMessages');
-const roomChatInput    = document.getElementById('roomChatInput');
-let roomChat = [];
-
-let currentDMUser = null;
-
-function handleBack(){
-  // إذا كنت داخل الروم → رجع لقائمة الرومات
-  if(roomInnerScreen.classList.contains('active')){
-    leaveRoom();
-  }else{
-    // هنا تربط الرجوع للواجهة الرئيسية لتطبيقك
-    // مثال مستقبلي: window.location.href = 'index.html';
-    alert('هنا تربط زر الرجوع بالواجهة الرئيسية لتطبيقك');
-  }
+// زر الرجوع – عدل الرابط حسب تطبيقك الرئيسي
+function handleBack() {
+  // مثال: يرجع لصفحة الشات الرئيسية:
+  // window.location.href = "https://basmali12.github.io/320/";
+  alert("هنا اربط رجوع للواجهة الرئيسية (رابط شات أبو أمير).");
 }
 
-function iconClassFor(room){
-  switch(room.icon){
-    case 't3arof': return 'room-icon-circle room-icon-t3arof';
-    case 'games':  return 'room-icon-circle room-icon-games';
-    case 'swalif': return 'room-icon-circle room-icon-swalif';
-    case 'friends':return 'room-icon-circle room-icon-friends';
-    case 'notify': return 'room-icon-circle room-icon-notify';
-    case 'funny':  return 'room-icon-circle room-icon-funny';
-    default:       return 'room-icon-circle room-icon-swalif';
-  }
+function forceReloadUser() {
+  if (!currentUser) return;
+  updateUserLabel();
 }
 
-function renderRooms(){
-  roomsListEl.innerHTML = '';
-  const filtered = roomsData.filter(r => currentFilter === 'all' ? true : r.type === currentFilter);
-
-  filtered.forEach(room=>{
-    const div = document.createElement('div');
-    div.className = 'room-card';
-    div.onclick = ()=>openRoom(room);
-
-    const lockBadge = room.isLocked
-      ? `<span class="badge badge-locked"><i class="fa-solid fa-lock"></i> برمز</span>`
-      : `<span class="badge badge-public"><i class="fa-solid fa-lock-open"></i> عام</span>`;
-
-    const members = room.members || [];
-    const first3 = members.slice(0,3);
-    const moreCount = members.length > 3 ? (members.length - 3) : 0;
-
-    let membersHtml = '';
-    first3.forEach(name=>{
-      const initial = name.trim().charAt(0) || "?";
-      membersHtml += `<div class="member-avatar">${initial}</div>`;
-    });
-
-    const moreHtml = moreCount > 0
-      ? `<span class="member-more">+${moreCount} آخرين</span>`
-      : '';
-
-    div.innerHTML = `
-      <div class="room-top-row">
-        <div class="room-icon-wrap">
-          <div class="${iconClassFor(room)}">
-            ${
-              room.type === 'games' ? '<i class="fa-solid fa-gamepad"></i>' :
-              room.type === 'funny' ? '<i class="fa-solid fa-face-grin-squint-tears"></i>' :
-              room.type === 'notify' ? '<i class="fa-solid fa-bullhorn"></i>' :
-              room.type === 'friends'? '<i class="fa-solid fa-user-group"></i>' :
-              room.type === 't3arof' ? '<i class="fa-solid fa-heart"></i>' :
-                                        '<i class="fa-solid fa-microphone-lines"></i>'
-            }
-          </div>
-        </div>
-        <div class="room-main-info">
-          <div class="room-name">${room.name}</div>
-          <div class="room-desc">${room.desc}</div>
-        </div>
-        <div class="room-side-meta">
-          <div><i class="fa-solid fa-user"></i> ${room.online} متواجد</div>
-          ${lockBadge}
-        </div>
-      </div>
-
-      <div class="room-members-row">
-        <div class="members-avatars">
-          ${membersHtml}
-          ${moreHtml}
-        </div>
-        <div class="room-stats">
-          <span><i class="fa-solid fa-volume-high"></i> صوتي فقط</span>
-        </div>
-      </div>
-    `;
-    roomsListEl.appendChild(div);
-  });
-
-  if(filtered.length === 0){
-    roomsListEl.innerHTML = `
-      <p style="font-size:12px;color:#9ca3af;margin-top:10px;text-align:center">
-        لا توجد رومات مطابقة للتصفية الحالية.
-      </p>
-    `;
-  }
-}
-
-function setFilter(btn){
-  const chips = document.querySelectorAll('.filter-chip');
-  chips.forEach(c=>c.classList.remove('active'));
-  btn.classList.add('active');
-  currentFilter = btn.dataset.filter || 'all';
-  renderRooms();
-}
-
-// ===== بيانات شكلية للمايكات (5 فوق + 5 جوه) =====
-const topSpeakers = [
-  {name:"أبو أمير", mic:true},
-  {name:"زينب",     mic:false},
-  {name:"علي",      mic:true},
-  {name:"سارة",     mic:false},
-  {name:"كرار",     mic:true}
-];
-const bottomSpeakers = [
-  {name:"نور",    mic:false},
-  {name:"حسين",   mic:false},
-  {name:"مرتضى",  mic:true},
-  {name:"مريم",   mic:false},
-  {name:"سجاد",   mic:true}
-];
-
-function renderMics(){
-  topMicsRow.innerHTML = "";
-  bottomMicsRow.innerHTML = "";
-
-  topSpeakers.forEach(user=>{
-    topMicsRow.appendChild(buildMicCard(user));
-  });
-  bottomSpeakers.forEach(user=>{
-    bottomMicsRow.appendChild(buildMicCard(user));
-  });
-}
-
-function buildMicCard(user){
-  const card = document.createElement('div');
-  card.className = 'mic-card';
-  card.onclick = () => openUserDM(user);
-
-  const avatar = document.createElement('div');
-  avatar.className = 'mic-avatar';
-  avatar.textContent = (user.name.trim()[0] || '?');
-
-  const nameEl = document.createElement('div');
-  nameEl.className = 'mic-name';
-  nameEl.textContent = user.name;
-
-  const iconWrap = document.createElement('div');
-  iconWrap.className = 'mic-icon' + (user.mic ? '' : ' mic-muted-icon');
-
-  const icon = document.createElement('i');
-  icon.className = 'fa-solid ' + (user.mic ? 'fa-microphone' : 'fa-microphone-slash');
-
-  iconWrap.appendChild(icon);
-  card.appendChild(avatar);
-  card.appendChild(nameEl);
-  card.appendChild(iconWrap);
-
-  return card;
-}
-
-function openRoom(room){
-  currentRoom = room;
-  roomsScreen.classList.remove('active');
-  roomInnerScreen.classList.add('active');
-
-  innerRoomName.textContent = room.name;
-  innerRoomSub.textContent  = room.desc;
-
-  innerRoomMeta.innerHTML = room.isLocked
-    ? `<i class="fa-solid fa-lock"></i> <span>روم خاص • برمز دخول</span>`
-    : `<i class="fa-solid fa-lock-open"></i> <span>روم عام • بدون رمز</span>`;
-
-  statUsers.textContent = room.online + " متواجد";
-
-  micOn = false;
-  updateMicUI();
-  renderMics();
-
-  // إعادة تعيين دردشة الروم (شكلية)
-  roomChat = [
-    {sender:'نظام', text:'أهلاً بك في الروم، هذه دردشة شكلية للتجربة.'}
-  ];
-  renderRoomChat();
-}
-
-function leaveRoom(){
-  currentRoom = null;
-  roomInnerScreen.classList.remove('active');
-  roomsScreen.classList.add('active');
-}
-
-function toggleMic(){
-  micOn = !micOn;
-  updateMicUI();
-}
-
-function updateMicUI(){
-  if(micOn){
-    micBtn.classList.remove('mic-muted');
-    micBtn.classList.add('mic-on');
-    micBtn.innerHTML = `<i class="fa-solid fa-microphone"></i>`;
-  }else{
-    micBtn.classList.remove('mic-on');
-    micBtn.classList.add('mic-muted');
-    micBtn.innerHTML = `<i class="fa-solid fa-microphone-slash"></i>`;
-  }
-}
-
-// ===== دردشة الروم (شكلية) =====
-function escapeHtml(text){
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
-function renderRoomChat(){
-  if(!roomChatMessages) return;
-  roomChatMessages.innerHTML = '';
-  roomChat.forEach(msg=>{
-    const div = document.createElement('div');
-    div.className = 'room-chat-message';
-    div.innerHTML =
-      `<strong style="color:#22c55e;">${escapeHtml(msg.sender)}:</strong> `+
-      `<span>${escapeHtml(msg.text)}</span>`;
-    roomChatMessages.appendChild(div);
-  });
-  roomChatMessages.scrollTop = roomChatMessages.scrollHeight;
-}
-
-function sendRoomChatMessage(){
-  const text = roomChatInput.value.trim();
-  if(!text) return;
-  roomChat.push({sender:'أنا', text});
-  roomChatInput.value = '';
-  renderRoomChat();
-}
-
-roomChatInput.addEventListener('keypress', (e)=>{
-  if(e.key === 'Enter'){
-    e.preventDefault();
-    sendRoomChatMessage();
-  }
-});
-
-// ===== مودال المراسلة الخاصة =====
-const dmModal        = document.getElementById('dmModal');
-const dmUserNameEl   = document.getElementById('dmUserName');
-const dmMessageInput = document.getElementById('dmMessageInput');
-
-function openUserDM(user){
-  currentDMUser = user;
-  dmUserNameEl.textContent = user.name;
-  dmMessageInput.value = '';
-  dmModal.style.display = 'flex';
-}
-
-function closeDM(){
-  dmModal.style.display = 'none';
-}
-
-function sendDMMessage(){
-  const text = dmMessageInput.value.trim();
-  if(!text){
-    alert('اكتب رسالة أولاً');
+// تحديث اسم المستخدم في الأعلى
+function updateUserLabel() {
+  const el = document.getElementById("userNameLabel");
+  if (!currentUser) {
+    el.textContent = "دخول مجهول (لم يتم تسجيل الدخول)";
     return;
   }
-  // هنا مستقبلاً تربط المراسلة الخاصة فعلياً
-  alert('(تصميم فقط) سيتم لاحقاً إرسال رسالة خاصة إلى: ' + currentDMUser.name);
-  closeDM();
+  currentUserName =
+    currentUser.displayName ||
+    (currentUser.email ? currentUser.email.split("@")[0] : "مستخدم");
+
+  el.textContent = `مرحباً، ${currentUserName}`;
 }
 
-// إغلاق المودال عند الضغط خارج الصندوق
-dmModal.addEventListener('click', (e)=>{
-  if(e.target === dmModal){
-    closeDM();
+// ============= Auth =============
+auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    currentUser = user;
+    updateUserLabel();
+    startRoomsListener();
+  } else {
+    // ماكو مستخدم؟ نسجل مجهول لكن حقيقي على السيرفر
+    try {
+      await auth.signInAnonymously();
+    } catch (err) {
+      console.error("فشل تسجيل مجهول:", err);
+      document.getElementById("userNameLabel").textContent =
+        "فشل في الاتصال بالمصادقة.";
+    }
   }
 });
 
-function createRoomPrompt(){
-  const name = prompt("أكتب اسم للروم الصوتي الجديد:");
-  if(!name || !name.trim()) return;
-  const id = "custom_" + Date.now();
-  roomsData.unshift({
-    id,
-    name:name.trim(),
-    desc:"روم تم إنشاؤه من قبلك (تصميم فقط).",
-    type:"swalif",
-    icon:'swalif',
-    isLocked:false,
-    online:1,
-    members:[name.trim(),"ضيف 1","ضيف 2"]
-  });
-  renderRooms();
-  alert("تم إنشاء الروم شكلياً فقط. لاحقاً نربطه بصوت حقيقي.");
+// ============= الرومات من Firestore =============
+
+function startRoomsListener() {
+  if (roomsUnsub) roomsUnsub();
+
+  roomsUnsub = db
+    .collection("voiceRooms")
+    .orderBy("createdAt", "desc")
+    .onSnapshot(
+      (snap) => {
+        const rooms = [];
+        snap.forEach((doc) => {
+          rooms.push({ id: doc.id, ...doc.data() });
+        });
+        renderRoomsList(rooms);
+      },
+      (err) => {
+        console.error("خطأ جلب الرومات:", err);
+      }
+    );
 }
 
-// تشغيل أولي
-renderRooms();
+function changeFilter(filter, btn) {
+  activeFilter = filter;
+  document
+    .querySelectorAll(".filter-chip")
+    .forEach((c) => c.classList.remove("active"));
+  btn.classList.add("active");
+  // سيتم التصفية داخل renderRoomsList
+}
+
+function renderRoomsList(allRooms) {
+  const list = document.getElementById("roomsList");
+  list.innerHTML = "";
+
+  const rooms = allRooms.filter((room) => {
+    if (activeFilter === "all") return true;
+    return room.type === activeFilter;
+  });
+
+  if (!rooms.length) {
+    list.innerHTML =
+      '<div style="text-align:center; font-size:12px; color:#9ca3af; margin-top:10px;">لا توجد رومات في هذا القسم حالياً.</div>';
+    return;
+  }
+
+  rooms.forEach((room) => {
+    const card = document.createElement("div");
+    card.className = "room-card";
+
+    const listeners = room.listenersCount || 0;
+    const isLocked = !!room.isLocked;
+    const type = room.type || "عام";
+
+    card.innerHTML = `
+      <div class="room-main-row">
+        <div>
+          <div class="room-title">${room.title || "بدون عنوان"}</div>
+          <div class="room-subtitle">${room.desc || ""}</div>
+        </div>
+        <button class="room-join-btn" onclick="enterRoom('${room.id}')">
+          <i class="fa-solid fa-door-open"></i>
+          دخول
+        </button>
+      </div>
+      <div class="room-meta-row">
+        <div class="room-tags">
+          <span class="room-tag-pill">
+            <i class="fa-solid fa-tag"></i>${type}
+          </span>
+          ${
+            isLocked
+              ? '<span class="room-tag-pill lock"><i class="fa-solid fa-lock"></i>مقفلة</span>'
+              : '<span class="room-tag-pill"><i class="fa-solid fa-unlock"></i>مفتوحة</span>'
+          }
+          <span class="room-tag-pill voice-only">
+            <i class="fa-solid fa-microphone"></i>صوتي فقط
+          </span>
+        </div>
+        <div class="room-users">
+          <i class="fa-solid fa-user-group"></i>
+          <span>${listeners} متواجد</span>
+        </div>
+      </div>
+    `;
+
+    list.appendChild(card);
+  });
+}
+
+// إنشاء روم جديد
+async function createRoomPrompt() {
+  const title = prompt("اسم الروم الصوتي:");
+  if (!title) return;
+
+  const type =
+    prompt(
+      "نوع الروم (تعارف / سوالف / ألعاب / صدافة / إشعارات):",
+      "تعارف"
+    ) || "تعارف";
+
+  const desc = prompt("وصف بسيط للروم:", "جلسة دردشة صوتية") || "";
+
+  try {
+    await db.collection("voiceRooms").add({
+      title,
+      type,
+      desc,
+      isLocked: false,
+      listenersCount: 0,
+      hostUid: currentUser ? currentUser.uid : null,
+      hostName: currentUserName,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    alert("تم إنشاء الروم بنجاح ✅");
+  } catch (err) {
+    console.error(err);
+    alert("فشل إنشاء الروم: " + err.message);
+  }
+}
+
+// ============= الدخول إلى روم =============
+async function enterRoom(roomId) {
+  activeRoomId = roomId;
+
+  // زيادة عدد المتواجدين
+  try {
+    await db
+      .collection("voiceRooms")
+      .doc(roomId)
+      .update({
+        listenersCount: firebase.firestore.FieldValue.increment(1),
+      });
+  } catch (e) {
+    console.warn("تعذر تحديث عدد المتواجدين:", e.message);
+  }
+
+  // قراءة بيانات الروم مرة واحدة
+  const doc = await db.collection("voiceRooms").doc(roomId).get();
+  if (!doc.exists) {
+    alert("الروم غير موجود.");
+    return;
+  }
+  const room = doc.data();
+
+  document.getElementById("roomTitle").textContent = room.title || "بدون عنوان";
+  document.getElementById("roomSubTitle").textContent =
+    room.desc || "روم صوتي";
+
+  document.getElementById(
+    "roomListeners"
+  ).innerHTML = `<i class="fa-solid fa-user"></i> ${
+    room.listenersCount || 0
+  } متواجد`;
+
+  renderMicsGrid(room);
+
+  // إظهار شاشة الروم
+  document.getElementById("roomsScreen").classList.remove("screen-active");
+  document.getElementById("roomScreen").classList.add("screen-active");
+
+  // بدء الاستماع للرسائل
+  startMessagesListener(roomId);
+}
+
+// الخروج من الروم
+async function closeRoom() {
+  if (activeRoomId) {
+    try {
+      await db
+        .collection("voiceRooms")
+        .doc(activeRoomId)
+        .update({
+          listenersCount: firebase.firestore.FieldValue.increment(-1),
+        });
+    } catch (e) {
+      console.warn("تعذر تخفيض عدد المتواجدين:", e.message);
+    }
+  }
+
+  if (messagesUnsub) {
+    messagesUnsub();
+    messagesUnsub = null;
+  }
+
+  activeRoomId = null;
+
+  document.getElementById("roomScreen").classList.remove("screen-active");
+  document.getElementById("roomsScreen").classList.add("screen-active");
+}
+
+// ============= شبكة المايكات (شكل فقط حالياً) =============
+function renderMicsGrid(room) {
+  const grid = document.querySelector(".mics-grid");
+  grid.innerHTML = "";
+
+  const hostName = room.hostName || "المضيف";
+  const names = [hostName, "زهراء", "محمد", "سارة", "حسين", "مريم", "علي", "نور", "حسن", "رنا"];
+
+  names.slice(0, 10).forEach((name, index) => {
+    const item = document.createElement("div");
+    item.className = "mic-item";
+
+    const letter = name.trim().charAt(0);
+
+    item.innerHTML = `
+      <div class="mic-avatar">
+        <span>${letter}</span>
+      </div>
+      <div class="mic-name">${name}</div>
+      ${
+        index === 0
+          ? '<div class="mic-muted"><i class="fa-solid fa-crown"></i> المضيف</div>'
+          : ""
+      }
+    `;
+
+    grid.appendChild(item);
+  });
+}
+
+// ============= رسائل الروم من Firestore =============
+function startMessagesListener(roomId) {
+  if (messagesUnsub) messagesUnsub();
+
+  messagesUnsub = db
+    .collection("voiceRooms")
+    .doc(roomId)
+    .collection("messages")
+    .orderBy("timestamp", "asc")
+    .onSnapshot(
+      (snap) => {
+        const container = document.getElementById("roomMessages");
+        container.innerHTML = "";
+        snap.forEach((doc) => {
+          const m = doc.data();
+          const div = document.createElement("div");
+          div.className = "room-msg";
+          div.innerHTML = `<span>${m.senderName}:</span> ${m.text}`;
+          container.appendChild(div);
+        });
+        container.scrollTop = container.scrollHeight;
+      },
+      (err) => {
+        console.error("خطأ في رسائل الروم:", err);
+      }
+    );
+}
+
+async function sendRoomMessage() {
+  if (!activeRoomId) return;
+  const input = document.getElementById("roomMsgInput");
+  const text = input.value.trim();
+  if (!text) return;
+
+  try {
+    await db
+      .collection("voiceRooms")
+      .doc(activeRoomId)
+      .collection("messages")
+      .add({
+        text,
+        senderUid: currentUser ? currentUser.uid : null,
+        senderName: currentUserName,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+    input.value = "";
+  } catch (err) {
+    console.error(err);
+    alert("فشل إرسال الرسالة: " + err.message);
+  }
+}
+
+function roomInputKey(e) {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    sendRoomMessage();
+  }
+}
+
+// عند إغلاق الصفحة حاول نقلل عدد المتواجدين
+window.addEventListener("beforeunload", () => {
+  if (activeRoomId) {
+    db.collection("voiceRooms")
+      .doc(activeRoomId)
+      .update({
+        listenersCount: firebase.firestore.FieldValue.increment(-1),
+      })
+      .catch(() => {});
+  }
+});
