@@ -548,10 +548,13 @@ function handleMicClick(slot) {
     return;
   }
   showMicToast();
-}// فتح روم الصوت السايبر بانك من داخل شات أبو أمير
+}
+
+// فتح روم الصوت السايبر بانك من داخل شات أبو أمير
 function goToVoiceRoom(roomId, roomName) {
-  // اسم المستخدم من التخزين المحلي لو موجود
-  const userName = localStorage.getItem("chatUserName") || "ضيف";
+  // هنا نقرأ الاسم الصحيح المخزون في التطبيق
+  const userName =
+    localStorage.getItem("chat_display_name") || myName || "ضيف";
 
   const url =
     "voice-room-cyberpunk.html"
