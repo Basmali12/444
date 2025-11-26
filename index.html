@@ -9,9 +9,6 @@
   <meta name="description" content="شات أبو أمير - موقع دردشة عامة، مجموعات، غرف صوتية، تعارف وصداقة، شات عراقي مجاني للجميع.">
   <meta name="keywords" content="شات أبو أمير, دردشة, شات عراقي, غرف صوتية, مجموعات, تعارف, صداقة, شات عربي">
 
-  <!-- هنا يبقى كود التحقق من جوجل لو حطيته مستقبلاً -->
-  <!-- <meta name="google-site-verification" content="XXXX"> -->
-
   <!-- Font Awesome -->
   <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -117,11 +114,12 @@
             </div>
           </button>
 
+          <!-- الغرف الصوتية: تفتح صفحة السايبر بانك -->
           <button class="home-card" onclick="openVoiceRoomsScreen()">
             <i class="fa-solid fa-headset home-icon"></i>
             <div>
               <div class="home-title">الغرف الصوتية</div>
-              <div class="home-sub">رومات صوتية + شات لكل روم</div>
+              <div class="home-sub">روم صوتي Cyberpunk + شات</div>
             </div>
           </button>
         </div>
@@ -136,7 +134,7 @@
           </div>
         </div>
 
-        <!-- شريط المايكات القديم (مخفي حالياً) -->
+        <!-- شريط المايكات (في الشات العادي – للرسائل الصوتية لو حبيت مستقبلاً) -->
         <div id="voiceMicsBar" class="voice-mics" style="display:none;">
           <div class="mic-slot">
             <button class="mic-circle" onclick="handleMicClick(1)">
@@ -243,28 +241,17 @@
         </div>
       </section>
 
-      <!-- شاشة الرومات الصوتية -->
+      <!-- شاشة الغرف الصوتية – الآن بس زر واحد يفتح روم Cyberpunk -->
       <section id="voiceRoomsScreen" class="screen">
         <div class="voice-header-row">
           <div class="section-title">الغرف الصوتية</div>
-          <div class="section-hint small">رومات + شات لكل روم</div>
+          <div class="section-hint small">روم صوتي + شات (Cyberpunk)</div>
         </div>
 
-        <!-- زر يدخل على صفحة الروم السايبر بانك -->
         <button class="create-room-btn"
-                onclick="goToVoiceRoom('room_cyber_1','روم صوتي – شات أبو أمير (Cyberpunk)')">
-          <span><i class="fa-solid fa-plus"></i> دخول روم صوتي Cyberpunk</span>
+                onclick="goToVoiceRoom('voice_room_cyberpunk_1','روم صوتي – شات أبو أمير (Cyberpunk)')">
+          <span><i class="fa-solid fa-microphone-lines"></i> دخول الروم الصوتي</span>
         </button>
-
-        <div class="voice-tabs">
-          <button class="voice-tab active" data-filter="all">الكل</button>
-          <button class="voice-tab" data-filter="taarof">تعارف</button>
-          <button class="voice-tab" data-filter="games">ألعاب</button>
-          <button class="voice-tab" data-filter="swalif">سوالف</button>
-          <button class="voice-tab" data-filter="friends">صداقة</button>
-        </div>
-
-        <div id="voiceRoomsList" class="rooms-list"></div>
       </section>
 
     </main>
@@ -285,17 +272,6 @@
       </button>
     </div>
   </div>
-
-  <!-- دالة الربط مع صفحة الروم السايبر بانك -->
-  <script>
-    function goToVoiceRoom(roomId, roomName) {
-      const url =
-        "voice-room-cyberpunk.html"
-        + "?roomId=" + encodeURIComponent(roomId)
-        + "&roomName=" + encodeURIComponent(roomName || "");
-      window.location.href = url;
-    }
-  </script>
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
