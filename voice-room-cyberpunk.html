@@ -5,30 +5,21 @@
   <title>روم صوتي – شات أبو أمير</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- خط جميل -->
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-  <!-- Font Awesome -->
   <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
     :root {
       --bg-main: #020617;
-      --bg-panel: #020617;
       --card-bg: rgba(15, 23, 42, 0.95);
       --neon-green: #22c55e;
-      --neon-purple: #a855f7;
-      --neon-blue: #38bdf8;
-      --neon-pink: #ec4899;
       --text-main: #e5e7eb;
       --text-dim: #9ca3af;
       --border-soft: rgba(148, 163, 184, 0.18);
-      --shadow-soft: 0 0 35px rgba(56, 189, 248, 0.3);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -53,7 +44,7 @@
       background: linear-gradient(135deg, #22d3ee 0%, #4c1d95 40%, #0f172a 100%);
       border-radius: 28px;
       padding: 3px;
-      box-shadow: var(--shadow-soft);
+      box-shadow: 0 0 35px rgba(56, 189, 248, 0.3);
     }
 
     .room-inner {
@@ -64,8 +55,6 @@
       flex-direction: column;
       gap: 10px;
     }
-
-    /* الهيدر */
 
     .room-header {
       display: flex;
@@ -121,10 +110,7 @@
       box-shadow: 0 0 12px rgba(15, 23, 42, 0.9);
     }
 
-    .back-btn:active {
-      transform: translateY(1px) scale(0.98);
-      opacity: 0.9;
-    }
+    .back-btn:active { transform: translateY(1px) scale(0.98); }
 
     .status-pill {
       align-self: flex-start;
@@ -149,8 +135,6 @@
       box-shadow: 0 0 10px rgba(34, 197, 94, 0.9);
     }
 
-    /* المايكات */
-
     .mics-card {
       background: rgba(15, 23, 42, 0.96);
       border-radius: 22px;
@@ -164,14 +148,14 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 6px;
+      font-size: 13px;
     }
 
     .mics-header-row .title {
-      font-size: 13px;
-      font-weight: 600;
       display: flex;
       align-items: center;
       gap: 6px;
+      font-weight: 600;
     }
 
     .mics-header-row .title i {
@@ -239,32 +223,24 @@
       text-shadow: 0 0 12px rgba(56, 189, 248, 0.95);
     }
 
-    .mic-name-label {
-      font-size: 11px;
-      color: var(--text-dim);
-    }
+    .mic-name-label { font-size: 11px; color: var(--text-dim); }
 
     .mic-circle.mic-active {
       border-color: rgba(45, 212, 191, 0.9);
       box-shadow: 0 0 22px rgba(45, 212, 191, 0.95);
     }
 
-    .mic-circle.mic-active::before {
-      opacity: 0.6;
-    }
+    .mic-circle.mic-active::before { opacity: 0.6; }
 
     .mic-circle.mic-busy {
       border-color: rgba(248, 113, 113, 0.8);
       box-shadow: 0 0 18px rgba(248, 113, 113, 0.8);
-      filter: grayscale(0.15);
     }
 
     .mic-circle.mic-busy i {
       color: #fecaca;
       text-shadow: 0 0 10px rgba(248, 113, 113, 0.9);
     }
-
-    /* الرسائل + الموجودين */
 
     .bottom-grid {
       margin-top: 8px;
@@ -318,9 +294,7 @@
       font-size: 12px;
     }
 
-    .messages-area::-webkit-scrollbar {
-      width: 4px;
-    }
+    .messages-area::-webkit-scrollbar { width: 4px; }
     .messages-area::-webkit-scrollbar-thumb {
       background: rgba(148, 163, 184, 0.8);
       border-radius: 999px;
@@ -341,20 +315,9 @@
       margin-bottom: 1px;
     }
 
-    .msg-name {
-      font-weight: 600;
-      color: #f9fafb;
-    }
-
-    .msg-time {
-      color: #9ca3af;
-      font-size: 9px;
-    }
-
-    .msg-text {
-      font-size: 11px;
-      color: #e5e7eb;
-    }
+    .msg-name { font-weight: 600; }
+    .msg-time { color: #9ca3af; font-size: 9px; }
+    .msg-text { font-size: 11px; }
 
     .chat-input-row {
       margin-top: 6px;
@@ -377,9 +340,7 @@
       padding: 4px 4px;
     }
 
-    .chat-input-row input::placeholder {
-      color: #6b7280;
-    }
+    .chat-input-row input::placeholder { color: #6b7280; }
 
     .send-btn {
       width: 30px;
@@ -396,9 +357,7 @@
       font-size: 14px;
     }
 
-    .send-btn:active {
-      transform: translateY(1px) scale(0.96);
-    }
+    .send-btn:active { transform: translateY(1px) scale(0.96); }
 
     .users-list {
       height: 145px;
@@ -410,10 +369,7 @@
       font-size: 12px;
     }
 
-    .users-list::-webkit-scrollbar {
-      width: 4px;
-    }
-
+    .users-list::-webkit-scrollbar { width: 4px; }
     .users-list::-webkit-scrollbar-thumb {
       background: rgba(148, 163, 184, 0.8);
       border-radius: 999px;
@@ -447,25 +403,14 @@
       justify-content: center;
       font-size: 11px;
       color: #eff6ff;
-      box-shadow: 0 0 10px rgba(56, 189, 248, 0.9);
     }
 
-    .user-name {
-      font-size: 11px;
-    }
-
-    .user-tag {
-      font-size: 9px;
-      color: #a5b4fc;
-    }
+    .user-name { font-size: 11px; }
+    .user-tag { font-size: 9px; color: #a5b4fc; }
 
     @media (max-width: 460px) {
-      .page-wrapper {
-        padding-inline: 10px;
-      }
-      .bottom-grid {
-        grid-template-columns: 1fr;
-      }
+      .page-wrapper { padding-inline: 10px; }
+      .bottom-grid { grid-template-columns: 1fr; }
       .messages-area,
       .users-list {
         height: 135px;
@@ -486,7 +431,7 @@
             <span class="icon"><i class="fa-solid fa-signal"></i></span>
             روم صوتي – شات أبو أمير
           </div>
-          <div class="room-subtitle">شات + ٥ مايكات – Cyberpunk</div>
+          <div class="room-subtitle" id="roomSubtitle">شات + ٥ مايكات – Cyberpunk</div>
           <div class="status-pill" id="onlineStatus">
             <span class="dot"></span>
             <span id="onlineCountLabel">0 متصل الآن</span>
@@ -575,12 +520,16 @@
   </div>
 </div>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
 <script>
-  // إعداد Firebase (نفس مشروعك)
+  // 🧩 هنا الفرق المهم: نقرأ roomId من الرابط
+  const params = new URLSearchParams(window.location.search);
+  const roomIdFromUrl = params.get("roomId");
+  const ROOM_ID = roomIdFromUrl || "voice_cyberpunk_main";
+
+  // Firebase config نفسه مالك
   const firebaseConfig = {
     apiKey: "AIzaSyBPapPdivEQO1UPqQdCRTBI6ct8KZDtqyw",
     authDomain: "sjfie-bed64.firebaseapp.com",
@@ -590,30 +539,23 @@
     appId: "1:67450727104:web:4d271f44bab9740571db25"
   };
 
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
-
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  // هوية الروم
-  const ROOM_ID = "voice_cyberpunk_main";
+  const roomRef = db.collection("voiceRooms").doc(ROOM_ID);
+  const messagesRef = roomRef.collection("messages");
+  const participantsRef = roomRef.collection("participants");
 
-  // هوية المستخدم و اسمه من التخزين
+  // اسم المستخدم من التخزين
   let currentUserId = localStorage.getItem("chat_user_id");
   if (!currentUserId) {
     currentUserId = "u_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
     localStorage.setItem("chat_user_id", currentUserId);
   }
-
   let currentUserName =
     localStorage.getItem("chat_user_name") ||
     localStorage.getItem("chatUserName") ||
     "ضيف";
-
-  const roomRef = db.collection("voiceRooms").doc(ROOM_ID);
-  const messagesRef = roomRef.collection("messages");
-  const participantsRef = roomRef.collection("participants");
 
   async function ensureRoomDoc() {
     const snap = await roomRef.get();
@@ -624,8 +566,6 @@
       }, { merge: true });
     }
   }
-
-  // ====== الرسائل ======
 
   function setupMessagesListener() {
     const messagesContainer = document.getElementById("room-messages");
@@ -640,8 +580,7 @@
         let time = "";
         if (data.createdAt && data.createdAt.toDate) {
           time = data.createdAt.toDate().toLocaleTimeString("ar-IQ", {
-            hour: "2-digit",
-            minute: "2-digit"
+            hour: "2-digit", minute: "2-digit"
           });
         }
         div.innerHTML = `
@@ -671,8 +610,6 @@
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
   }
-
-  // ====== المايكات ======
 
   function updateMicUI(state) {
     for (let i = 1; i <= 5; i++) {
@@ -713,10 +650,9 @@
     const fieldOwnerId = "mic" + slot + "OwnerId";
     const fieldOwnerName = "mic" + slot + "OwnerName";
 
-    await db.runTransaction(async (tx) => {
+    await db.runTransaction(async tx => {
       const snap = await tx.get(roomRef);
-      let data = {};
-      if (snap.exists) data = snap.data();
+      let data = snap.exists ? snap.data() : {};
 
       const currentOwner = data[fieldOwnerId] || null;
 
@@ -734,8 +670,6 @@
       tx.set(roomRef, data, { merge: true });
     });
   }
-
-  // ====== الموجودين بالروم ======
 
   function setupParticipantsListener() {
     const usersList = document.getElementById("room-users");
@@ -763,9 +697,7 @@
         `;
         usersList.appendChild(pill);
       });
-      if (countLabel) {
-        countLabel.textContent = count + " متصل الآن";
-      }
+      if (countLabel) countLabel.textContent = count + " متصل الآن";
     });
   }
 
@@ -788,14 +720,9 @@
     });
   }
 
-  // ====== رجوع ======
-
   function goBackToMain() {
-    // لو تريد يرجع لصفحة الشات الرئيسية على نفس الدومين
     window.location.href = "./";
   }
-
-  // ====== تهيئة الصفحة ======
 
   window.addEventListener("DOMContentLoaded", async () => {
     await ensureRoomDoc();
@@ -808,16 +735,22 @@
 
     if (sendBtn) sendBtn.addEventListener("click", sendRoomMessage);
     if (msgInput) {
-      msgInput.addEventListener("keydown", (e) => {
+      msgInput.addEventListener("keydown", e => {
         if (e.key === "Enter") {
           e.preventDefault();
           sendRoomMessage();
         }
       });
     }
+
+    // لو جاي من قائمة الرومات ومعك اسم الروم في URL
+    const roomName = params.get("roomName");
+    if (roomName) {
+      const subtitle = document.getElementById("roomSubtitle");
+      if (subtitle) subtitle.textContent = roomName + " – Cyberpunk";
+    }
   });
 
-  // نخلي الدوال متاحة لـ onclick
   window.handleMicClick = handleMicClick;
   window.sendRoomMessage = sendRoomMessage;
   window.goBackToMain = goBackToMain;
