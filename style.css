@@ -1,559 +1,427 @@
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:'Segoe UI',Tahoma,sans-serif;
-  background:linear-gradient(135deg,#161e2f 0%,#080d19 100%);
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  color:#111827;
-  touch-action:pan-y;
+/* إعدادات عامة */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
-.app{
-  width:100%;
-  max-width:600px;
-  height:95vh;
-  background:#020617;
-  border-radius:18px;
-  overflow:hidden;
-  box-shadow:0 12px 35px rgba(0,0,0,0.6);
-  display:flex;
-  flex-direction:column;
-  touch-action:pan-y;
+
+body {
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background: radial-gradient(circle at top, #1f2933 0, #050816 55%, #020308 100%);
+  color: #f9fafb;
+  direction: rtl;
+}
+
+/* حاوية التطبيق */
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* شريط تنبيه أعلى */
+.top-note {
+  background: rgba(15, 23, 42, 0.9);
+  color: #e5e7eb;
+  font-size: 12px;
+  text-align: center;
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(55, 65, 81, 0.6);
 }
 
 /* الهيدر */
-.header{
-  background:#008069;
-  color:#fff;
-  padding:12px 14px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
-.header-left{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-.header-title{
-  font-weight:bold;
-  font-size:16px;
-}
-.header-sub{
-  font-size:12px;
-  opacity:.9;
-}
-.back-btn{
-  border:none;
-  background:none;
-  color:#fff;
-  font-size:18px;
-  cursor:pointer;
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: rgba(15, 23, 42, 0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  position: sticky;
+  top: 0;
+  z-index: 20;
 }
 
-/* شاشات */
-.screen{
-  flex:1;
-  display:none;
-  flex-direction:column;
-  background:#020617;
-}
-.screen.active{display:flex;}
-
-/* شاشة قائمة الرومات */
-.rooms-screen-body{
-  flex:1;
-  padding:12px;
-  overflow-y:auto;
-  touch-action:pan-y;
-}
-.create-room-btn{
-  width:100%;
-  border:none;
-  background:linear-gradient(135deg,#22c55e,#16a34a);
-  color:#022c22;
-  padding:12px 10px;
-  border-radius:14px;
-  font-size:15px;
-  font-weight:600;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  box-shadow:0 6px 18px rgba(22,163,74,0.6);
-  cursor:pointer;
-  margin-bottom:10px;
-}
-.create-room-btn span{
-  display:flex;
-  align-items:center;
-  gap:8px;
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.filters-row{
-  display:flex;
-  gap:6px;
-  overflow-x:auto;
-  padding-bottom:6px;
-  margin-bottom:10px;
-}
-.filter-chip{
-  border:none;
-  font-size:12px;
-  padding:6px 10px;
-  border-radius:999px;
-  background:#020617;
-  color:#e5e7eb;
-  border:1px solid #4b5563;
-  cursor:pointer;
-  white-space:nowrap;
-}
-.filter-chip.active{
-  background:#10b981;
-  color:#022c22;
-  border-color:#10b981;
+.back-btn {
+  border: none;
+  outline: none;
+  background: rgba(15, 118, 110, 0.1);
+  color: #e5e7eb;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.section-title{
-  font-size:13px;
-  color:#9ca3af;
-  margin:4px 2px 6px;
+.back-btn i {
+  font-size: 14px;
 }
 
-/* بطاقة روم – ستايل Clubhouse */
-.room-card{
-  background:#020617;
-  border-radius:16px;
-  padding:10px 10px 8px;
-  margin-bottom:10px;
-  border:1px solid #111827;
-  cursor:pointer;
-  transition:transform .12s,box-shadow .12s,border-color .12s,background .12s;
-}
-.room-card:hover{
-  transform:translateY(-2px);
-  box-shadow:0 10px 24px rgba(0,0,0,0.7);
-  border-color:#22c55e;
-  background:#030712;
-}
-.room-top-row{
-  display:flex;
-  align-items:flex-start;
-  gap:10px;
-}
-.room-icon-wrap{
-  flex-shrink:0;
-}
-.room-icon-circle{
-  width:46px;
-  height:46px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#f9fafb;
-  font-size:22px;
-  box-shadow:0 4px 15px rgba(0,0,0,0.7);
-}
-.room-icon-t3arof{
-  background:radial-gradient(circle at top,#fb7185,#db2777,#9d174d);
-}
-.room-icon-games{
-  background:radial-gradient(circle at top,#38bdf8,#0ea5e9,#0369a1);
-}
-.room-icon-swalif{
-  background:radial-gradient(circle at top,#a855f7,#7c3aed,#4c1d95);
-}
-.room-icon-friends{
-  background:radial-gradient(circle at top,#4ade80,#22c55e,#15803d);
-}
-.room-icon-notify{
-  background:radial-gradient(circle at top,#f97316,#ea580c,#9a3412);
-}
-.room-icon-funny{
-  background:radial-gradient(circle at top,#facc15,#eab308,#a16207);
+.header-title-wrap {
+  display: flex;
+  flex-direction: column;
 }
 
-.room-main-info{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  gap:4px;
-}
-.room-name{
-  font-size:14px;
-  font-weight:600;
-  color:#f9fafb;
-}
-.room-desc{
-  font-size:11px;
-  color:#9ca3af;
+.header-title {
+  font-weight: 700;
+  font-size: 17px;
 }
 
-.room-side-meta{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-end;
-  gap:4px;
-  font-size:11px;
-  color:#9ca3af;
-}
-.badge{
-  padding:3px 8px;
-  border-radius:999px;
-  font-size:10px;
-  border:1px solid #4b5563;
-}
-.badge-public{
-  border-color:#22c55e;
-  color:#bbf7d0;
-  background:#022c22;
-}
-.badge-locked{
-  border-color:#f97316;
-  color:#fed7aa;
-  background:#451a03;
+.header-sub {
+  font-size: 11px;
+  color: #9ca3af;
 }
 
-/* صف أعضاء مصغّر مثل Clubhouse */
-.room-members-row{
-  margin-top:8px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-}
-.members-avatars{
-  display:flex;
-  align-items:center;
-  gap:4px;
-}
-.member-avatar{
-  width:26px;
-  height:26px;
-  border-radius:50%;
-  background:#111827;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#e5e7eb;
-  font-size:12px;
-  border:1px solid #4b5563;
-  box-shadow:0 2px 6px rgba(0,0,0,0.7);
-}
-.member-more{
-  font-size:11px;
-  color:#9ca3af;
-}
-.room-stats{
-  font-size:11px;
-  color:#9ca3af;
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-.room-stats span{
-  display:flex;
-  align-items:center;
-  gap:4px;
+.header-icon {
+  font-size: 20px;
+  color: #22c55e;
 }
 
-/* داخل الروم الصوتي */
-.room-inner{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  background:radial-gradient(circle at top,#0f172a,#020617 55%);
-  color:#e5e7eb;
-}
-.room-inner-header{
-  padding:10px 12px 4px;
-  border-bottom:1px solid #111827;
-}
-.room-inner-title{
-  font-size:15px;
-  font-weight:600;
-}
-.room-inner-sub{
-  font-size:11px;
-  color:#9ca3af;
-  margin-top:2px;
-}
-.pill{
-  display:inline-flex;
-  align-items:center;
-  gap:4px;
-  font-size:11px;
-  color:#9ca3af;
-  background:#020617;
-  border-radius:999px;
-  padding:4px 8px;
-  border:1px solid #1f2937;
-  margin-top:6px;
+/* الشاشات */
+.screen {
+  display: none;
 }
 
-.room-inner-body{
-  flex:1;
-  padding:10px;
-  overflow-y:auto;
-  touch-action:pan-y;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
+.screen-active {
+  display: block;
 }
 
-/* صفوف المايكات (5 فوق + 5 جوه) */
-.block-label{
-  font-size:13px;
-  color:#9ca3af;
-  margin:4px 0 6px;
-}
-.mics-row{
-  display:grid;
-  grid-template-columns:repeat(5, 1fr);
-  gap:10px;
-  margin-bottom:6px;
-}
-.mic-card{
-  background:#0f172a;
-  border:1px solid #1f2937;
-  border-radius:12px;
-  padding:6px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
-  cursor:pointer;
-  transition:0.15s;
-}
-.mic-card:hover{
-  border-color:#22c55e;
-  transform:translateY(-3px);
-}
-.mic-avatar{
-  width:48px;
-  height:48px;
-  border-radius:50%;
-  background:#1f2937;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#e5e7eb;
-  font-size:17px;
-  border:2px solid #4b5563;
-}
-.mic-name{
-  color:#e5e7eb;
-  font-size:12px;
-  text-align:center;
-  max-width:100%;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.mic-icon{
-  font-size:16px;
-  color:#22c55e;
-}
-.mic-muted-icon{
-  color:#dc2626;
+/* جسم شاشة الرومات */
+.rooms-screen-body {
+  padding: 12px;
 }
 
-/* دردشة الروم */
-.room-chat-block{
-  margin-top:4px;
-  border-top:1px solid #111827;
-  padding-top:6px;
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-}
-.room-chat-messages{
-  max-height:180px;
-  min-height:90px;
-  overflow-y:auto;
-  background:#020617;
-  border-radius:10px;
-  border:1px solid #111827;
-  padding:6px;
-  font-size:11px;
-  touch-action:pan-y;
-}
-.room-chat-message{
-  margin-bottom:4px;
-  line-height:1.4;
-}
-.room-chat-input{
-  display:flex;
-  align-items:center;
-  gap:6px;
-}
-.room-chat-input input{
-  flex:1;
-  padding:8px 10px;
-  border-radius:999px;
-  border:none;
-  background:#020617;
-  color:#e5e7eb;
-  font-size:12px;
-  outline:none;
-  border:1px solid #111827;
-}
-.room-chat-input button{
-  width:40px;
-  height:40px;
-  border-radius:50%;
-  border:none;
-  background:#16a34a;
-  color:#ecfdf5;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  box-shadow:0 4px 10px rgba(0,0,0,0.6);
+/* زر إنشاء روم */
+.create-room-btn {
+  width: 100%;
+  border: none;
+  outline: none;
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(90deg, #16a34a, #22c55e);
+  color: #f9fafb;
+  font-weight: 600;
+  font-size: 14px;
 }
 
-/* تحكم أسفل الروم */
-.room-controls{
-  padding:8px 10px 10px;
-  border-top:1px solid #111827;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  background:#020617;
-}
-.top-controls-row{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-.mini-stats{
-  font-size:11px;
-  color:#9ca3af;
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-.mini-stat{
-  display:flex;
-  align-items:center;
-  gap:4px;
-}
-.buttons-row{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:8px;
-}
-.round-btn{
-  width:52px;
-  height:52px;
-  border-radius:50%;
-  border:none;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:22px;
-  cursor:pointer;
-  box-shadow:0 6px 16px rgba(0,0,0,0.5);
-  transition:transform .1s,box-shadow .1s,background .1s;
-}
-.round-btn.mic-on{
-  background:#16a34a;
-  color:#ecfdf5;
-}
-.round-btn.mic-muted{
-  background:#991b1b;
-  color:#fee2e2;
-}
-.round-btn.leave{
-  background:#f97316;
-  color:#fff7ed;
-  width:64px;
-  height:64px;
-  font-size:24px;
-}
-.round-btn.small{
-  width:42px;
-  height:42px;
-  font-size:18px;
-}
-.round-btn:active{
-  transform:translateY(1px);
-  box-shadow:0 3px 10px rgba(0,0,0,0.4);
-}
-.bottom-hint{
-  font-size:10px;
-  color:#6b7280;
-  text-align:center;
+.create-room-btn span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-/* مودال المراسلة الخاصة */
-.dm-modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.7);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:9999;
-}
-.dm-box{
-  background:#020617;
-  border-radius:14px;
-  border:1px solid #1f2937;
-  padding:14px;
-  width:90%;
-  max-width:360px;
-  color:#e5e7eb;
-  box-shadow:0 12px 30px rgba(0,0,0,0.8);
-}
-.dm-title{
-  font-size:14px;
-  font-weight:600;
-  margin-bottom:4px;
-}
-.dm-user{
-  font-size:13px;
-  color:#a5b4fc;
-  margin-bottom:8px;
-}
-.dm-box textarea{
-  width:100%;
-  min-height:80px;
-  resize:none;
-  border-radius:8px;
-  border:1px solid #111827;
-  background:#020617;
-  color:#e5e7eb;
-  padding:8px;
-  font-size:12px;
-  outline:none;
-}
-.dm-actions{
-  margin-top:8px;
-  display:flex;
-  justify-content:flex-end;
-  gap:6px;
-}
-.dm-actions button{
-  border:none;
-  padding:6px 10px;
-  border-radius:999px;
-  font-size:12px;
-  cursor:pointer;
-}
-.dm-actions button:first-child{
-  background:#111827;
-  color:#e5e7eb;
-}
-.dm-send-btn{
-  background:#16a34a;
-  color:#ecfdf5;
+.create-room-btn i {
+  font-size: 15px;
 }
 
-/* سكروول */
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:#020617}
-::-webkit-scrollbar-thumb{background:#4b5563;border-radius:999px}
+/* فلاتر الأنواع */
+.room-filters {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 6px;
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+}
+
+.room-filters::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-chip {
+  border: none;
+  outline: none;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(31, 41, 55, 0.85);
+  color: #e5e7eb;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.filter-chip.active {
+  background: #22c55e;
+  color: #022c22;
+}
+
+/* قائمة الرومات */
+.rooms-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 20px;
+}
+
+.room-card {
+  background: rgba(15, 23, 42, 0.97);
+  border-radius: 16px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid rgba(55, 65, 81, 0.9);
+}
+
+.room-main-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.room-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.room-subtitle {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+
+.room-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.room-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 11px;
+}
+
+.room-tag-pill {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(31, 41, 55, 0.9);
+  color: #e5e7eb;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.room-tag-pill.lock {
+  background: rgba(127, 29, 29, 0.8);
+}
+
+.room-tag-pill.voice-only {
+  background: rgba(8, 47, 73, 0.9);
+}
+
+.room-tag-pill i {
+  font-size: 11px;
+}
+
+.room-users {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #d1d5db;
+}
+
+.room-users i {
+  color: #22c55e;
+}
+
+.room-join-btn {
+  border-radius: 999px;
+  background: #16a34a;
+  color: #ecfdf5;
+  border: none;
+  outline: none;
+  padding: 6px 12px;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* شاشة داخل الروم */
+.room-screen {
+  min-height: calc(100vh - 0px);
+  background: radial-gradient(circle at top, #0b1120 0, #020617 65%, #000 100%);
+  display: none;
+  flex-direction: column;
+}
+
+.room-screen.screen-active {
+  display: flex;
+}
+
+/* هيدر الروم */
+.room-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: rgba(15, 23, 42, 0.96);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.room-header-center {
+  flex: 1;
+  margin: 0 8px;
+}
+
+.room-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.room-subtitle {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.room-settings-btn {
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #e5e7eb;
+}
+
+/* جسم الروم */
+.room-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  gap: 10px;
+}
+
+/* شبكة المايكات (5 فوق + 5 تحت) */
+.mics-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-auto-rows: 70px;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.mic-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.mic-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 20%, #34d399, #0f766e);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ecfdf5;
+  font-size: 18px;
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.9);
+}
+
+.mic-name {
+  font-size: 11px;
+  color: #e5e7eb;
+}
+
+.mic-muted {
+  font-size: 10px;
+  color: #f97316;
+}
+
+/* إحصائيات الروم */
+.room-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: #d1d5db;
+  margin-bottom: 4px;
+}
+
+/* شات الروم */
+.room-chat {
+  flex: 1;
+  background: rgba(15, 23, 42, 0.9);
+  border-radius: 16px;
+  padding: 8px 8px 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.room-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.room-msg {
+  font-size: 11px;
+  background: rgba(31, 41, 55, 0.9);
+  border-radius: 10px;
+  padding: 5px 7px;
+}
+
+.room-msg span {
+  font-weight: 600;
+  color: #a5b4fc;
+}
+
+.room-chat-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.room-chat-input input {
+  flex: 1;
+  border-radius: 999px;
+  border: none;
+  outline: none;
+  padding: 7px 12px;
+  font-size: 12px;
+  background: rgba(15, 23, 42, 0.95);
+  color: #e5e7eb;
+}
+
+.room-chat-input button {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: none;
+  outline: none;
+  background: #16a34a;
+  color: white;
+}
+
+/* سكرول أنيق */
+.room-messages::-webkit-scrollbar,
+.rooms-screen-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.room-messages::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.8);
+  border-radius: 99px;
+}
