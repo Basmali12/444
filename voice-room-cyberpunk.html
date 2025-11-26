@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>روم صوتي – شات أبو أمير (Cyberpunk)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- أيقونات -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top, #6419ff 0, transparent 55%),
+        radial-gradient(circle at bottom, #ff0080 0, #050814 60%);
+      color: #f9fafb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* خلفية نيون متحركة خفيفة */
+    .bg-orbit {
+      position: fixed;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 10% 20%, rgba(56,189,248,0.3), transparent 55%),
+        radial-gradient(circle at 80% 70%, rgba(236,72,153,0.35), transparent 55%);
+      mix-blend-mode: screen;
+      opacity: 0.7;
+      animation: floatBg 18s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: 0;
+    }
+    @keyframes floatBg {
+      0%   { transform: translate3d(0,0,0) scale(1); }
+      50%  { transform: translate3d(-4%,3%,0) scale(1.05); }
+      100% { transform: translate3d(4%,-3%,0) scale(1.08); }
+    }
+
+    .room-shell {
+      width: 100%;
+      max-width: 960px;
+      height: 90vh;
+      padding: 3px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, #ff00ff, #00e0ff, #22c55e);
+      box-shadow: 0 0 35px rgba(0,0,0,0.9);
+      position: relative;
+      z-index: 1;
+      animation: floatCard 7s ease-in-out infinite alternate;
+    }
+    @keyframes floatCard {
+      0%   { transform: translateY(0px); }
+      100% { transform: translateY(-8px); }
+    }
+
+    .room {
+      width: 100%;
+      height: 100%;
+      border-radius: 20px;
+      background: #050814;
+      padding: 14px 14px 10px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* الهيدر */
+    .room-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 2;
+    }
+    .room-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .back-btn {
+      border: none;
+      border-radius: 999px;
+      width: 34px;
+      height: 34px;
+      background: rgba(15,23,42,0.9);
+      color: #e5e7eb;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0,0,0,0.6);
+      transition: 0.15s;
+    }
+    .back-btn:hover {
+      background: #0f172a;
+      transform: translateY(-1px);
+    }
+
+    .room-title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .room-name {
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .room-sub {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .room-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .online-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(96,165,250,0.45);
+      font-size: 11px;
+      color: #e5e7eb;
+    }
+    .online-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 10px #22c55e;
+    }
+
+    /* جسم الروم */
+    .room-body {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 2.2fr 1fr;
+      gap: 10px;
+      position: relative;
+      z-index: 2;
+    }
+
+    @media (max-width: 800px) {
+      .room-body {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* قسم اليسار (مايكات + شات) */
+    .left-column {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* صف المايكات */
+    .mics-bar {
+      padding: 10px 10px 8px;
+      border-radius: 16px;
+      background: radial-gradient(circle at top, rgba(79,70,229,0.3), transparent 70%),
+                  rgba(15,23,42,0.9);
+      border: 1px solid rgba(55,65,81,0.9);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+    }
+
+    .mics-bar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .mics-bar-header span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .mics-bar-header i {
+      color: #a855f7;
+    }
+
+    .mics-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .mic-circle {
+      flex: 1;
+      max-width: 72px;
+      aspect-ratio: 1 / 1;
+      border-radius: 50%;
+      background: radial-gradient(circle at top, rgba(59,130,246,0.2), rgba(15,23,42,0.9));
+      border: 2px solid #4b0aff;
+      box-shadow: 0 0 12px #4b0aff, inset 0 0 8px rgba(0,0,0,0.7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      transition: 0.18s ease;
+      overflow: hidden;
+    }
+
+    .mic-circle:hover {
+      transform: translateY(-3px) scale(1.06);
+      box-shadow: 0 0 15px #8b5cf6, inset 0 0 10px rgba(0,0,0,0.7);
+      border-color: #8b5cf6;
+    }
+
+    .mic-line {
+      width: 34px;
+      height: 4px;
+      background: #ff0077;
+      border-radius: 999px;
+      box-shadow: 0 0 10px #ff0077;
+      margin-top: 4px;
+    }
+
+    .mic-label {
+      margin-top: 7px;
+      font-size: 11px;
+      text-align: center;
+      color: #e0e7ff;
+      text-shadow: 0 0 4px #4b0aff;
+    }
+
+    .mic-me-badge {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #22c55e;
+      color: #022c22;
+      font-weight: 600;
+      box-shadow: 0 0 8px #22c55e;
+      display: none;
+    }
+
+    .mic-locked {
+      position: absolute;
+      bottom: 6px;
+      right: 6px;
+      font-size: 11px;
+      opacity: 0.8;
+      color: #f97316;
+      display: none;
+    }
+
+    /* حالة المايك المحجوز (اللون يتغير) */
+    .mic-circle.taken {
+      border-color: #ff0066;
+      box-shadow: 0 0 15px #ff0066, inset 0 0 10px rgba(0,0,0,0.7);
+    }
+    .mic-circle.mine {
+      border-color: #22c55e;
+      box-shadow: 0 0 15px #22c55e, inset 0 0 10px rgba(0,0,0,0.7);
+    }
+
+    /* الشات داخل الروم */
+    .chat-box {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border-radius: 16px;
+      background: rgba(15,23,42,0.96);
+      border: 1px solid rgba(31,41,55,0.9);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.8);
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 6px 10px;
+      border-bottom: 1px solid rgba(31,41,55,0.9);
+      font-size: 12px;
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .chat-header span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .chat-header i {
+      color: #22d3ee;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 13px;
+      scroll-behavior: smooth;
+    }
+
+    .msg {
+      max-width: 80%;
+      padding: 7px 9px;
+      border-radius: 10px;
+      background: #020617;
+      border: 1px solid #1f2937;
+      color: #e5e7eb;
+      display: inline-block;
+      position: relative;
+    }
+    .msg.me {
+      align-self: flex-end;
+      background: linear-gradient(135deg,#22c55e,#16a34a);
+      border-color: transparent;
+      color: #022c22;
+    }
+    .msg .from {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-bottom: 2px;
+    }
+    .msg.me .from {
+      color: #022c22;
+      opacity: 0.9;
+    }
+    .msg-time {
+      display: block;
+      font-size: 10px;
+      margin-top: 2px;
+      opacity: 0.7;
+    }
+
+    .chat-input {
+      padding: 8px;
+      border-top: 1px solid rgba(31,41,55,0.9);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #020617;
+    }
+    .chat-input button {
+      border: none;
+      background: transparent;
+      color: #9ca3af;
+      cursor: pointer;
+      font-size: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s, transform 0.1s;
+    }
+    .chat-input button:hover {
+      color: #22d3ee;
+      transform: translateY(-1px);
+    }
+
+    .chat-input input {
+      flex: 1;
+      padding: 7px 9px;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+    .chat-input input:focus {
+      border-color: #22d3ee;
+      box-shadow: 0 0 0 1px rgba(34,211,238,0.4);
+      background: #02091f;
+    }
+
+    .send-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: linear-gradient(135deg,#22d3ee,#a855f7);
+      color: #0f172a;
+      box-shadow: 0 0 12px rgba(34,211,238,0.7);
+      font-size: 16px;
+    }
+
+    /* قسم المستخدمين (يمين) */
+    .right-column {
+      border-radius: 16px;
+      background: rgba(15,23,42,0.96);
+      border: 1px solid rgba(31,41,55,0.9);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.8);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .users-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+
+    .users-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .user-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 6px;
+      border-radius: 10px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(31,41,55,0.9);
+      cursor: pointer;
+      transition: background 0.15s, transform 0.08s;
+    }
+    .user-row:hover {
+      background: rgba(30,64,175,0.9);
+      transform: translateY(-1px);
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .user-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: radial-gradient(circle at top,#22d3ee,#0f172a);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #0b1120;
+      font-weight: 700;
+    }
+    .user-name {
+      font-size: 12px;
+    }
+    .user-role {
+      font-size: 11px;
+      color: #a5b4fc;
+    }
+    .user-status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 8px #22c55e;
+    }
+
+    .mini-note {
+      font-size: 11px;
+      color: #9ca3af;
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    /* خطأ */
+    .error {
+      font-size: 11px;
+      color: #fb7185;
+      text-align: center;
+      min-height: 14px;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-orbit"></div>
+
+<div class="room-shell">
+  <div class="room">
+
+    <!-- هيدر الروم -->
+    <header class="room-header">
+      <div class="room-left">
+        <button class="back-btn" onclick="alert('هنا تربطه بالرجوع للواجهة الرئيسية / شات أبو أمير')">
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+        <div class="room-title-block">
+          <div class="room-name">روم صوتي – شات أبو أمير</div>
+          <div class="room-sub" id="roomSubtitle">Cyberpunk – ٥ مايكات + شات</div>
+        </div>
+      </div>
+
+      <div class="room-right">
+        <div class="online-pill">
+          <span class="online-dot"></span>
+          <span><span id="onlineCount">0</span> متصل الآن</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- جسم الروم -->
+    <div class="room-body">
+
+      <!-- يسار: مايكات + شات -->
+      <div class="left-column">
+        <!-- صف المايكات -->
+        <section class="mics-bar">
+          <div class="mics-bar-header">
+            <span><i class="fa-solid fa-microphone-lines"></i> المايكات المتاحة</span>
+            <span>اضغط على المايك للحجز / الترك</span>
+          </div>
+
+          <div class="mics-row">
+            <div class="mic-circle" data-mic="mic1" onclick="toggleMic('mic1')">
+              <div class="mic-line"></div>
+              <span class="mic-label" id="mic1Label">مايك 1</span>
+              <span class="mic-me-badge" id="mic1Me">أنت</span>
+              <span class="mic-locked" id="mic1Lock"><i class="fa-solid fa-lock"></i></span>
+            </div>
+
+            <div class="mic-circle" data-mic="mic2" onclick="toggleMic('mic2')">
+              <div class="mic-line"></div>
+              <span class="mic-label" id="mic2Label">مايك 2</span>
+              <span class="mic-me-badge" id="mic2Me">أنت</span>
+              <span class="mic-locked" id="mic2Lock"><i class="fa-solid fa-lock"></i></span>
+            </div>
+
+            <div class="mic-circle" data-mic="mic3" onclick="toggleMic('mic3')">
+              <div class="mic-line"></div>
+              <span class="mic-label" id="mic3Label">مايك 3</span>
+              <span class="mic-me-badge" id="mic3Me">أنت</span>
+              <span class="mic-locked" id="mic3Lock"><i class="fa-solid fa-lock"></i></span>
+            </div>
+
+            <div class="mic-circle" data-mic="mic4" onclick="toggleMic('mic4')">
+              <div class="mic-line"></div>
+              <span class="mic-label" id="mic4Label">مايك 4</span>
+              <span class="mic-me-badge" id="mic4Me">أنت</span>
+              <span class="mic-locked" id="mic4Lock"><i class="fa-solid fa-lock"></i></span>
+            </div>
+
+            <div class="mic-circle" data-mic="mic5" onclick="toggleMic('mic5')">
+              <div class="mic-line"></div>
+              <span class="mic-label" id="mic5Label">مايك 5</span>
+              <span class="mic-me-badge" id="mic5Me">أنت</span>
+              <span class="mic-locked" id="mic5Lock"><i class="fa-solid fa-lock"></i></span>
+            </div>
+          </div>
+
+          <div id="micError" class="error"></div>
+        </section>
+
+        <!-- الشات -->
+        <section class="chat-box">
+          <div class="chat-header">
+            <span><i class="fa-solid fa-comments"></i> دردشة الروم</span>
+            <span id="roomInfoText">تظهر للكل داخل الروم</span>
+          </div>
+
+          <div class="chat-messages" id="messages"></div>
+
+          <div class="chat-input">
+            <button type="button" title="إرسال إيموجي" onclick="alert('هنا ممكن تفتح لوحة الإيموجي لاحقاً')">
+              <i class="fa-regular fa-face-smile"></i>
+            </button>
+            <input id="msgInput" type="text" placeholder="اكتب رسالة تظهر لكل الموجودين في الروم...">
+            <button class="send-btn" type="button" onclick="sendMessage()">
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <!-- يمين: قائمة المستخدمين -->
+      <aside class="right-column">
+        <div class="users-header">
+          <span><i class="fa-solid fa-users"></i> الموجودين بالروم</span>
+          <span id="userCountLabel">0 أعضاء</span>
+        </div>
+
+        <div class="users-list" id="usersList">
+          <!-- هنا مستقبلاً نربط قائمة الموجودين من Firebase أو presence -->
+        </div>
+
+        <div class="mini-note">
+          بالضغط على أي مستخدم، تقدر تفتح مراسلة خاصة (لاحقاً نربطها بالشات الخاص).
+        </div>
+      </aside>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+<script>
+  // 🔥 إعدادات Firebase مالتك (نفس مشروع sjfie-bed64)
+  const firebaseConfig = {
+    apiKey: "AIzaSyBPapPdivEQO1UPqQdCRTBI6ct8KZDtqyw",
+    authDomain: "sjfie-bed64.firebaseapp.com",
+    projectId: "sjfie-bed64",
+    storageBucket: "sjfie-bed64.firebasestorage.app",
+    messagingSenderId: "67450727104",
+    appId: "1:67450727104:web:4d271f44bab9740571db25"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  // 🧾 نحدد ID للروم الصوتي
+  // إذا موجود ?room=على الرابط نستخدمه، وإلا نخلي default
+  const urlParams = new URLSearchParams(window.location.search);
+  const roomId = urlParams.get("room") || "voice_main_1";
+
+  // 👤 نجيب اسم المستخدم من localStorage (نفس شات أبو أمير)
+  function getMyName() {
+    const fromStorage =
+      localStorage.getItem("chatUserName") ||
+      localStorage.getItem("userName") ||
+      "";
+    if (fromStorage && fromStorage.trim()) return fromStorage.trim();
+    return "مستخدم مجهول";
+  }
+
+  const myName = getMyName();
+
+  // 🟣 تحديث شكل المايك من بيانات Firestore
+  function renderMic(micId, holderName) {
+    const label  = document.getElementById(micId + "Label");
+    const meBadge = document.getElementById(micId + "Me");
+    const circle = document.querySelector(`.mic-circle[data-mic="${micId}"]`);
+    if (!label || !meBadge || !circle) return;
+
+    circle.classList.remove("mine", "taken");
+    meBadge.style.display = "none";
+
+    if (!holderName) {
+      // فاضي
+      const index = parseInt(micId.replace("mic", ""), 10) || 1;
+      label.textContent = "مايك " + index;
+      return;
+    }
+
+    // محجوز
+    label.textContent = holderName;
+    if (holderName === myName) {
+      circle.classList.add("mine");
+      meBadge.style.display = "block";
+    } else {
+      circle.classList.add("taken");
+    }
+  }
+
+  // 🎙️ حجز / ترك المايك (Transaction على Firestore)
+  async function toggleMic(micId) {
+    const errorBox = document.getElementById("micError");
+    errorBox.textContent = "";
+
+    if (!myName || myName === "مستخدم مجهول") {
+      errorBox.textContent = "أكتب اسمك أول مرة داخل شات أبو أمير حتى نعرفك بالروم.";
+      return;
+    }
+
+    const micRef = db
+      .collection("voiceRooms")
+      .doc(roomId)
+      .collection("mics")
+      .doc(micId);
+
+    try {
+      await db.runTransaction(async (t) => {
+        const snap = await t.get(micRef);
+        const data = snap.exists ? snap.data() : {};
+        const holder = data.holderName || "";
+
+        if (!holder) {
+          // المايك فاضي → خليه بإسمي
+          t.set(micRef, {
+            holderName: myName,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        } else if (holder === myName) {
+          // أنا صاحب المايك → أتركه
+          t.set(micRef, {
+            holderName: "",
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        } else {
+          // واحد ثاني حجزه
+          throw new Error("هذا المايك محجوز من شخص آخر حالياً.");
+        }
+      });
+    } catch (err) {
+      errorBox.textContent = err.message;
+    }
+  }
+
+  // 🔁 استماع حي لتغيّر المايكات من Firestore
+  function listenMics() {
+    db.collection("voiceRooms")
+      .doc(roomId)
+      .collection("mics")
+      .onSnapshot((snap) => {
+        snap.forEach((doc) => {
+          const data = doc.data() || {};
+          renderMic(doc.id, data.holderName || "");
+        });
+      });
+  }
+
+  // 💬 إرسال رسالة للروم الصوتي
+  function sendMessage() {
+    const input = document.getElementById("msgInput");
+    const text = input.value.trim();
+    if (!text) return;
+
+    db.collection("voiceRooms")
+      .doc(roomId)
+      .collection("messages")
+      .add({
+        text: text,
+        sender: myName || "مجهول",
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      })
+      .then(() => {
+        input.value = "";
+      })
+      .catch((err) => {
+        alert("فشل إرسال الرسالة: " + err.message);
+      });
+  }
+
+  document.getElementById("msgInput").addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  // 👀 استماع حي لرسائل الروم
+  function listenMessages() {
+    const list = document.getElementById("messages");
+    db.collection("voiceRooms")
+      .doc(roomId)
+      .collection("messages")
+      .orderBy("timestamp", "asc")
+      .onSnapshot((snap) => {
+        list.innerHTML = "";
+        snap.forEach((doc) => {
+          const msg = doc.data();
+          const div = document.createElement("div");
+          const isMe = msg.sender === myName;
+
+          div.className = "msg" + (isMe ? " me" : "");
+          const time = msg.timestamp
+            ? formatTime(msg.timestamp.toDate())
+            : "";
+
+          div.innerHTML = `
+            <div class="from">${escapeHtml(msg.sender || "مجهول")}</div>
+            ${escapeHtml(msg.text || "")}
+            <span class="msg-time">${time}</span>
+          `;
+          list.appendChild(div);
+        });
+        list.scrollTop = list.scrollHeight;
+      });
+  }
+
+  function formatTime(date) {
+    let h = date.getHours();
+    let m = date.getMinutes();
+    const suffix = h >= 12 ? "م" : "ص";
+    h = h % 12 || 12;
+    if (m < 10) m = "0" + m;
+    return h + ":" + m + " " + suffix;
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.innerText = text;
+    return div.innerHTML;
+  }
+
+  function openPrivateChat(name) {
+    alert("لاحقاً نربط مراسلة خاصة مع: " + name);
+  }
+
+  // 📡 تشغيل الإستماعات
+  listenMics();
+  listenMessages();
+</script>
+
+</body>
+</html>
