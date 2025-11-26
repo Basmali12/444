@@ -2,19 +2,38 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>شات أبو أمير</title>
+
+  <!-- 🔥 SEO Title -->
+  <title>شات أبو أمير – دردشة عراقية، مجموعات وغرف صوتية</title>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- وصف الموقع لمحرك البحث (SEO) -->
-  <meta name="description" content="شات أبو أمير - موقع دردشة عامة، مجموعات، غرف صوتية، تعارف وصداقة، شات عراقي مجاني للجميع.">
+  <!-- 🔥 SEO Description -->
+  <meta name="description" content="شات أبو أمير – دردشة عراقية عامة، مجموعات تعارف، سوالف، ألعاب، غرف صوتية مع شات نصي. شات سريع ومجاني للجميع.">
 
-  <!-- كلمات مفتاحية (اختيارية بس مفيدة) -->
-  <meta name="keywords" content="شات أبو أمير, دردشة, شات عراقي, غرف صوتية, مجموعات, تعارف, صداقة, شات عربي">
+  <!-- 🔥 SEO Keywords -->
+  <meta name="keywords" content="شات أبو أمير, شات عراقي, دردشة عراقية, شات تعارف, غرف صوتية, سوالف عراقية, شات عربي, صداقة">
 
-  <!-- هنا مستقبلاً تحط كود التحقق من جوجل (Google Search Console)
-  مثال:
-  <meta name="google-site-verification" content="الكود-من-جوجل">
-  -->
+  <!-- اللغة -->
+  <meta http-equiv="Content-Language" content="ar">
+
+  <!-- 🔥 Canonical URL -->
+  <link rel="canonical" href="https://basmali12.github.io/444/">
+
+  <!-- 🔥 Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="شات أبو أمير – شات عراقي وغرف صوتية">
+  <meta property="og:description" content="دردشة عامة، مجموعات، وغرف صوتية مع شات نصي.">
+  <meta property="og:url" content="https://basmali12.github.io/444/">
+  <meta property="og:site_name" content="شات أبو أمير">
+
+  <!-- لو عندك صورة لوجو ضيف رابطها هنا -->
+  <!-- <meta property="og:image" content="https://basmali12.github.io/444/logo.png"> -->
+
+  <!-- 🔥 Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="شات أبو أمير – شات عراقي وغرف صوتية">
+  <meta name="twitter:description" content="دردشة عامة، مجموعات، وغرف صوتية مع شات نصي.">
 
   <!-- Font Awesome -->
   <link rel="stylesheet"
@@ -25,12 +44,11 @@
 </head>
 <body>
 
-  <!-- عنوان مخفي يساعد جوجل يفهم اسم الموقع بدون ما يخرب التصميم -->
-  <h1 style="position:absolute; left:-9999px; top:-9999px;">
-    شات أبو أمير - موقع دردشة عامة، مجموعات وغرف صوتية
-  </h1>
+<h1 style="position:absolute; left:-9999px; top:-9999px;">
+  شات أبو أمير – دردشة عامة، مجموعات وغرف صوتية
+</h1>
 
-<!-- نافذة إدخال الاسم أول مرة -->
+<!-- نافذة إدخال الاسم -->
 <div id="nameModal" class="modal">
   <div class="modal-box">
     <div class="title center">👋 أهلاً بيك</div>
@@ -94,7 +112,7 @@
   <!-- المحتوى -->
   <main class="main-content">
 
-    <!-- شاشة البداية (حقول رئيسية) -->
+    <!-- شاشة البداية -->
     <section id="homeScreen" class="screen active">
       <div class="home-cards">
         <button class="home-card" onclick="openRoom('MainRoom','الدردشة العامة','الغرفة الرئيسية')">
@@ -131,7 +149,7 @@
       </div>
     </section>
 
-    <!-- شاشة الشات (أي روم) -->
+    <!-- شاشة الشات -->
     <section id="chatScreen" class="screen">
       <div class="chat-header-row">
         <div class="chat-info">
@@ -140,7 +158,7 @@
         </div>
       </div>
 
-      <!-- شريط المايكات للرومات الصوتية -->
+      <!-- شريط المايكات -->
       <div id="voiceMicsBar" class="voice-mics" style="display:none;">
         <div class="mic-slot">
           <button class="mic-circle" onclick="handleMicClick(1)">
@@ -202,7 +220,7 @@
 
     <!-- شاشة المجموعات -->
     <section id="groupsScreen" class="screen">
-      <h2 class="section-title">المجموعات</h2>
+      <h2 class="section-title">المجموععات</h2>
       <p class="section-hint">اختر مجموعة لفتح شات خاص بها.</p>
       <div class="groups-list">
         <button class="group-item" onclick="openRoom('group_taarof','مجموعة تعارف شباب وبنات','تعارف شباب وبنات')">
@@ -295,5 +313,6 @@
 
 <!-- كود التطبيق -->
 <script src="app.js"></script>
+
 </body>
 </html>
