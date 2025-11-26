@@ -1,154 +1,115 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <title>الرومات الصوتية – شات أبو أمير</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <!-- أيقونات فاونت أويسوم -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <title>الغرف الصوتية - شات أبو أمير</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- أيقونات فاونت أوسم -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
   <!-- ملف التنسيقات -->
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<div class="app">
+  <div class="app">
 
-  <!-- الهيدر -->
-  <div class="header">
-    <div class="header-left">
-      <button class="back-btn" onclick="handleBack()">
-        <i class="fa-solid fa-arrow-right"></i>
-      </button>
-      <div>
-        <div class="header-title">الغرف الصوتية</div>
-        <div class="header-sub">ستايل كلوب هاوس – شات أبو أمير 🎧</div>
-      </div>
+    <!-- شريط تنبيه مؤقت (تقدر تحذفه) -->
+    <div class="top-note">
+      basmali12.github.io يعرض موقع
+      <br />
+      هنا تربط زر الرجوع بالواجهة الرئيسية لتطبيقك
     </div>
-    <i class="fa-solid fa-headset"></i>
-  </div>
 
-  <!-- شاشة قائمة الرومات -->
-  <div id="roomsScreen" class="screen active">
-    <div class="rooms-screen-body">
-      <button class="create-room-btn" onclick="createRoomPrompt()">
-        <span>
-          <i class="fa-solid fa-plus"></i>
-          إنشاء روم صوتي جديد
-        </span>
-        <i class="fa-solid fa-headphones"></i>
-      </button>
-
-      <div class="filters-row" id="filtersRow">
-        <button class="filter-chip active" data-filter="all" onclick="setFilter(this)">الكل</button>
-        <button class="filter-chip" data-filter="t3arof" onclick="setFilter(this)">تعارف</button>
-        <button class="filter-chip" data-filter="games" onclick="setFilter(this)">ألعاب</button>
-        <button class="filter-chip" data-filter="swalif" onclick="setFilter(this)">سوالف</button>
-        <button class="filter-chip" data-filter="friends" onclick="setFilter(this)">صداقة</button>
-        <button class="filter-chip" data-filter="notify" onclick="setFilter(this)">إشعارات</button>
-        <button class="filter-chip" data-filter="funny" onclick="setFilter(this)">ضحك</button>
-      </div>
-
-      <div class="section-title">الرومات المتاحة الآن</div>
-      <div id="roomsList"></div>
-    </div>
-  </div>
-
-  <!-- شاشة داخل الروم -->
-  <div id="roomInnerScreen" class="screen">
-    <div class="room-inner">
-      <div class="room-inner-header">
-        <div class="room-inner-title" id="innerRoomName">عنوان الروم</div>
-        <div class="room-inner-sub" id="innerRoomSub">وصف الروم</div>
-        <div class="pill" id="innerRoomMeta">
-          <i class="fa-solid fa-lock-open"></i>
-          <span>عام • بدون رمز</span>
+    <!-- الهيدر -->
+    <header class="header">
+      <div class="header-left">
+        <button class="back-btn" onclick="handleBack()">
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+        <div class="header-title-wrap">
+          <div class="header-title">الغرف الصوتية</div>
+          <div class="header-sub">ستايل كلوب هاوس – شات أبو أمير</div>
         </div>
       </div>
+      <i class="fa-solid fa-headset header-icon"></i>
+    </header>
 
-      <div class="room-inner-body">
-        <!-- 5 مايكات فوق -->
-        <div class="main-speakers-block">
-          <div class="block-label">🎤 المتحدثين الرئيسيين</div>
-          <div class="mics-row" id="topMicsRow"></div>
+    <!-- شاشة قائمة الرومات -->
+    <main id="roomsScreen" class="screen screen-active">
+      <section class="rooms-screen-body">
+
+        <!-- زر إنشاء روم -->
+        <button class="create-room-btn" onclick="createRoomPrompt()">
+          <span>
+            <i class="fa-solid fa-plus"></i>
+            إنشاء روم صوتي جديد
+          </span>
+          <i class="fa-solid fa-headphones"></i>
+        </button>
+
+        <!-- فلاتر الأنواع -->
+        <div class="room-filters">
+          <button class="filter-chip active" data-filter="all" onclick="changeFilter('all', this)">الكل</button>
+          <button class="filter-chip" data-filter="تعارف" onclick="changeFilter('تعارف', this)">تعارف</button>
+          <button class="filter-chip" data-filter="سوالف" onclick="changeFilter('سوالف', this)">سوالف</button>
+          <button class="filter-chip" data-filter="صدافة" onclick="changeFilter('صدافة', this)">صدافة</button>
+          <button class="filter-chip" data-filter="ألعاب" onclick="changeFilter('ألعاب', this)">ألعاب</button>
+          <button class="filter-chip" data-filter="إشعارات" onclick="changeFilter('إشعارات', this)">إشعارات</button>
         </div>
 
-        <!-- 5 مايكات جوه -->
-        <div class="guest-speakers-block">
-          <div class="block-label">🎧 الضيوف / المشاركين</div>
-          <div class="mics-row" id="bottomMicsRow"></div>
+        <!-- قائمة الرومات -->
+        <div id="roomsList" class="rooms-list"></div>
+
+      </section>
+    </main>
+
+    <!-- شاشة داخل الروم -->
+    <section id="roomScreen" class="screen room-screen">
+      <header class="room-header">
+        <button class="back-btn" onclick="closeRoom()">
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+        <div class="room-header-center">
+          <div id="roomTitle" class="room-title">عنوان الروم</div>
+          <div id="roomSubTitle" class="room-subtitle">نوع الروم</div>
+        </div>
+        <button class="room-settings-btn">
+          <i class="fa-solid fa-ellipsis-vertical"></i>
+        </button>
+      </header>
+
+      <div class="room-body">
+
+        <!-- شبكة المايكات (5 فوق + 5 تحت) -->
+        <div class="mics-grid">
+          <!-- يتعبّي ديناميكي من app.js -->
         </div>
 
-        <!-- دردشة الروم -->
-        <div class="room-chat-block">
-          <div class="block-label">💬 دردشة الروم (تظهر للجميع)</div>
-          <div class="room-chat-messages" id="roomChatMessages"></div>
+        <!-- عدد الموجودين -->
+        <div class="room-stats">
+          <span id="roomListeners"><i class="fa-solid fa-user"></i> 0 متواجد</span>
+          <span><i class="fa-solid fa-volume-high"></i> صوتي فقط</span>
+        </div>
+
+        <!-- شات النص داخل الروم (تجريبي) -->
+        <div class="room-chat">
+          <div id="roomMessages" class="room-messages"></div>
           <div class="room-chat-input">
-            <input type="text" id="roomChatInput" placeholder="اكتب رسالة للجميع...">
-            <button onclick="sendRoomChatMessage()">
+            <input id="roomMsgInput" type="text" placeholder="اكتب رسالة للجميع في الروم..."
+                   onkeypress="roomInputKey(event)" />
+            <button onclick="sendRoomMessage()">
               <i class="fa-solid fa-paper-plane"></i>
             </button>
           </div>
         </div>
       </div>
+    </section>
 
-      <div class="room-controls">
-        <div class="top-controls-row">
-          <div class="mini-stats">
-            <div class="mini-stat">
-              <i class="fa-solid fa-user"></i>
-              <span id="statUsers">0 متواجد</span>
-            </div>
-            <div class="mini-stat">
-              <i class="fa-solid fa-clock"></i>
-              <span>روم تجريبي (بدون صوت حقيقي)</span>
-            </div>
-          </div>
-          <div style="font-size:11px;color:#9ca3af;">
-            <i class="fa-solid fa-circle-info"></i>
-            الصوت نضيفه لاحقاً
-          </div>
-        </div>
-
-        <div class="buttons-row">
-          <button class="round-btn small" title="رفع اليد">
-            <i class="fa-solid fa-hand-paper"></i>
-          </button>
-          <button id="micBtn" class="round-btn mic-muted" title="تشغيل/إيقاف المايك" onclick="toggleMic()">
-            <i class="fa-solid fa-microphone-slash"></i>
-          </button>
-          <button class="round-btn leave" title="مغادرة الروم" onclick="leaveRoom()">
-            <i class="fa-solid fa-door-open"></i>
-          </button>
-          <button class="round-btn small" title="شات الروم (تصميم فقط)">
-            <i class="fa-solid fa-message"></i>
-          </button>
-          <button class="round-btn small" title="إعدادات (لاحقاً)">
-            <i class="fa-solid fa-gear"></i>
-          </button>
-        </div>
-
-        <div class="bottom-hint">
-          هذا التصميم فقط، بدون صوت حقيقي. لاحقاً نربطه بسيرفر صوت أو WebRTC.
-        </div>
-      </div>
-    </div>
   </div>
 
-</div>
-
-<!-- مودال المراسلة الخاصة -->
-<div id="dmModal" class="dm-modal">
-  <div class="dm-box">
-    <div class="dm-title">مراسلة خاصة</div>
-    <div class="dm-user" id="dmUserName">اسم المستخدم</div>
-    <textarea id="dmMessageInput" placeholder="اكتب رسالتك هنا (تصميم فقط، بدون إرسال حقيقي)..."></textarea>
-    <div class="dm-actions">
-      <button onclick="closeDM()">إغلاق</button>
-      <button class="dm-send-btn" onclick="sendDMMessage()">إرسال (شكلي)</button>
-    </div>
-  </div>
-</div>
-
-<!-- ملف الجافاسكربت -->
-<script src="app.js"></script>
+  <!-- ملف الجافاسكربت -->
+  <script src="app.js"></script>
 </body>
 </html>
