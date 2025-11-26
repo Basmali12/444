@@ -548,4 +548,16 @@ function handleMicClick(slot) {
     return;
   }
   showMicToast();
+}// فتح روم الصوت السايبر بانك من داخل شات أبو أمير
+function goToVoiceRoom(roomId, roomName) {
+  // اسم المستخدم من التخزين المحلي لو موجود
+  const userName = localStorage.getItem("chatUserName") || "ضيف";
+
+  const url =
+    "voice-room-cyberpunk.html"
+    + "?roomId="   + encodeURIComponent(roomId)
+    + "&roomName=" + encodeURIComponent(roomName)
+    + "&user="     + encodeURIComponent(userName);
+
+  window.location.href = url;
 }
