@@ -1,129 +1,283 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <title>الغرف الصوتية - شات أبو أمير</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <title>شات أبو أمير</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- أيقونات فاونت أوسم -->
+  <!-- Font Awesome -->
   <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <!-- ستايل -->
-  <link rel="stylesheet" href="style.css" />
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="app">
 
-    <!-- تنبيه خفيف فوق (تقدر تحذفه) -->
-    <div class="top-note">
-      basmali12.github.io يعرض موقع<br>
-      زر الرجوع يرجعك للواجهة الرئيسية لتطبيقك.
+<!-- نافذة إدخال الاسم أول مرة -->
+<div id="nameModal" class="modal">
+  <div class="modal-box">
+    <div class="title center">👋 أهلاً بيك</div>
+    <p class="subtitle center">اكتب اسمك اللي راح يطلع للناس في شات أبو أمير</p>
+    <div class="input-group">
+      <input type="text" id="nameInput" placeholder="مثال: أبو أمير">
+    </div>
+    <p id="nameError" class="error-message"></p>
+    <button class="primary-btn full" onclick="enterWithName()">دخول</button>
+  </div>
+</div>
+
+<!-- نافذة الملف الشخصي -->
+<div id="profileModal" class="modal" style="display:none">
+  <div class="modal-box small">
+    <h3 class="title center">الملف الشخصي</h3>
+
+    <div class="avatar-wrapper">
+      <label for="avatarInput" class="avatar-label">
+        <img id="avatarPreview" src="" alt="صورتك" class="avatar-img">
+        <span class="avatar-edit"><i class="fa-solid fa-camera"></i></span>
+      </label>
+      <input type="file" id="avatarInput" accept="image/*" style="display:none">
     </div>
 
-    <!-- الهيدر -->
-    <header class="header">
-      <div class="header-left">
-        <button class="back-btn" onclick="handleBack()">
-          <i class="fa-solid fa-arrow-right"></i>
-        </button>
-        <div class="header-title-wrap">
-          <div class="header-title">الغرف الصوتية</div>
-          <div class="header-sub">ستايل كلوب هاوس – شات أبو أمير</div>
-        </div>
-      </div>
-      <i class="fa-solid fa-headset header-icon"></i>
-    </header>
+    <div class="input-group">
+      <label class="field-label">الاسم في الدردشة:</label>
+      <input type="text" id="profileNameInput" placeholder="اسمك">
+    </div>
 
-    <!-- شاشة قائمة الرومات -->
-    <main id="roomsScreen" class="screen screen-active">
-      <section class="rooms-screen-body">
+    <p id="profileError" class="error-message"></p>
 
-        <!-- معلومات المستخدم -->
-        <div class="user-bar">
-          <span id="userNameLabel">جارِ التحميل...</span>
-          <button class="user-refresh" onclick="forceReloadUser()">
-            <i class="fa-solid fa-rotate-right"></i>
-          </button>
-        </div>
+    <div class="action-buttons">
+      <button class="primary-btn" onclick="saveProfile()">حفظ</button>
+      <button class="secondary-btn" onclick="closeProfile()">إغلاق</button>
+    </div>
+  </div>
+</div>
 
-        <!-- زر إنشاء روم -->
-        <button class="create-room-btn" onclick="createRoomPrompt()">
-          <span>
-            <i class="fa-solid fa-plus"></i>
-            إنشاء روم صوتي جديد
-          </span>
-          <i class="fa-solid fa-headphones"></i>
-        </button>
+<!-- التطبيق الرئيسي -->
+<div id="app" class="app" style="display:none">
 
-        <!-- فلاتر -->
-        <div class="room-filters">
-          <button class="filter-chip active" data-filter="all" onclick="changeFilter('all', this)">الكل</button>
-          <button class="filter-chip" data-filter="تعارف" onclick="changeFilter('تعارف', this)">تعارف</button>
-          <button class="filter-chip" data-filter="سوالف" onclick="changeFilter('سوالف', this)">سوالف</button>
-          <button class="filter-chip" data-filter="صدافة" onclick="changeFilter('صدافة', this)">صدافة</button>
-          <button class="filter-chip" data-filter="ألعاب" onclick="changeFilter('ألعاب', this)">ألعاب</button>
-          <button class="filter-chip" data-filter="إشعارات" onclick="changeFilter('إشعارات', this)">إشعارات</button>
-        </div>
+  <!-- هيدر -->
+  <header class="main-header">
+    <div class="left">
+      <button class="icon-btn" onclick="handleBack()">
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+    <div class="center">
+      <div class="app-title">شات أبو أمير</div>
+      <div id="headerSubtitle" class="app-subtitle">الواجهة الرئيسية</div>
+    </div>
+    <div class="right">
+      <button class="icon-btn" onclick="openProfile()">
+        <i class="fa-solid fa-user"></i>
+      </button>
+    </div>
+  </header>
 
-        <!-- قائمة الرومات -->
-        <div id="roomsList" class="rooms-list"></div>
+  <!-- المحتوى -->
+  <main class="main-content">
 
-      </section>
-    </main>
-
-    <!-- شاشة داخل الروم -->
-    <section id="roomScreen" class="screen room-screen">
-      <header class="room-header">
-        <button class="back-btn" onclick="closeRoom()">
-          <i class="fa-solid fa-arrow-right"></i>
-        </button>
-        <div class="room-header-center">
-          <div id="roomTitle" class="room-title">عنوان الروم</div>
-          <div id="roomSubTitle" class="room-subtitle">وصف الروم</div>
-        </div>
-        <button class="room-settings-btn">
-          <i class="fa-solid fa-ellipsis-vertical"></i>
-        </button>
-      </header>
-
-      <div class="room-body">
-
-        <!-- شبكة المايكات -->
-        <div class="mics-grid">
-          <!-- يملأ من js -->
-        </div>
-
-        <!-- عدد الموجودين -->
-        <div class="room-stats">
-          <span id="roomListeners"><i class="fa-solid fa-user"></i> 0 متواجد</span>
-          <span><i class="fa-solid fa-volume-high"></i> صوتي فقط</span>
-        </div>
-
-        <!-- شات الروم -->
-        <div class="room-chat">
-          <div id="roomMessages" class="room-messages"></div>
-          <div class="room-chat-input">
-            <input id="roomMsgInput"
-                   type="text"
-                   placeholder="اكتب رسالة للجميع في الروم..."
-                   onkeypress="roomInputKey(event)" />
-            <button onclick="sendRoomMessage()">
-              <i class="fa-solid fa-paper-plane"></i>
-            </button>
+    <!-- شاشة البداية (حقول رئيسية) -->
+    <section id="homeScreen" class="screen active">
+      <div class="home-cards">
+        <button class="home-card" onclick="openRoom('MainRoom','الدردشة العامة','الغرفة الرئيسية')">
+          <i class="fa-solid fa-comments home-icon"></i>
+          <div>
+            <div class="home-title">الدردشة العامة</div>
+            <div class="home-sub">شات أبو أمير – كل الناس تشوف الرسائل</div>
           </div>
-        </div>
+        </button>
+
+        <button class="home-card" onclick="openUsersScreen()">
+          <i class="fa-solid fa-users home-icon"></i>
+          <div>
+            <div class="home-title">المستخدمين</div>
+            <div class="home-sub">كل شخص داخل التطبيق</div>
+          </div>
+        </button>
+
+        <button class="home-card" onclick="openGroupsScreen()">
+          <i class="fa-solid fa-layer-group home-icon"></i>
+          <div>
+            <div class="home-title">المجموعات</div>
+            <div class="home-sub">تعارف – ألعاب – سوالف – صور مضحكة</div>
+          </div>
+        </button>
+
+        <button class="home-card" onclick="openVoiceRoomsScreen()">
+          <i class="fa-solid fa-headset home-icon"></i>
+          <div>
+            <div class="home-title">الغرف الصوتية</div>
+            <div class="home-sub">رومات صوتية + شات لكل روم</div>
+          </div>
+        </button>
       </div>
     </section>
 
+    <!-- شاشة الشات (أي روم) -->
+    <section id="chatScreen" class="screen">
+      <div class="chat-header-row">
+        <div class="chat-info">
+          <div id="chatTitle" class="chat-title">شات أبو أمير</div>
+          <div id="chatRoomLabel" class="chat-room-label">الغرفة الرئيسية</div>
+        </div>
+      </div>
+
+      <!-- شريط المايكات للرومات الصوتية -->
+      <div id="voiceMicsBar" class="voice-mics" style="display:none;">
+        <div class="mic-slot">
+          <button class="mic-circle" onclick="handleMicClick(1)">
+            <i class="fa-solid fa-microphone-lines"></i>
+          </button>
+          <span class="mic-name">مايك 1</span>
+        </div>
+        <div class="mic-slot">
+          <button class="mic-circle" onclick="handleMicClick(2)">
+            <i class="fa-solid fa-microphone-lines"></i>
+          </button>
+          <span class="mic-name">مايك 2</span>
+        </div>
+        <div class="mic-slot">
+          <button class="mic-circle" onclick="handleMicClick(3)">
+            <i class="fa-solid fa-microphone-lines"></i>
+          </button>
+          <span class="mic-name">مايك 3</span>
+        </div>
+        <div class="mic-slot">
+          <button class="mic-circle" onclick="handleMicClick(4)">
+            <i class="fa-solid fa-microphone-lines"></i>
+          </button>
+          <span class="mic-name">مايك 4</span>
+        </div>
+        <div class="mic-slot">
+          <button class="mic-circle" onclick="handleMicClick(5)">
+            <i class="fa-solid fa-microphone-lines"></i>
+          </button>
+          <span class="mic-name">مايك 5</span>
+        </div>
+      </div>
+
+      <div id="messagesList" class="messages-area"></div>
+
+      <div class="input-area">
+        <input type="file" id="imgInput" accept="image/*" style="display:none">
+        <button class="icon-btn" onclick="document.getElementById('imgInput').click()">
+          <i class="fa-solid fa-camera"></i>
+        </button>
+
+        <button id="micBtn" class="icon-btn" onclick="toggleRecording()">
+          <i class="fa-solid fa-microphone"></i>
+        </button>
+
+        <input type="text" id="msgInput" placeholder="اكتب رسالة..." autocomplete="off">
+        <button class="send-btn" onclick="sendMessage()">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- شاشة المستخدمين -->
+    <section id="usersScreen" class="screen">
+      <h2 class="section-title">المستخدمون</h2>
+      <p class="section-hint">اضغط على أي مستخدم لفتح دردشة خاصة معه.</p>
+      <div id="usersList" class="users-list"></div>
+    </section>
+
+    <!-- شاشة المجموعات -->
+    <section id="groupsScreen" class="screen">
+      <h2 class="section-title">المجموعات</h2>
+      <p class="section-hint">اختر مجموعة لفتح شات خاص بها.</p>
+      <div class="groups-list">
+        <button class="group-item" onclick="openRoom('group_taarof','مجموعة تعارف شباب وبنات','تعارف شباب وبنات')">
+          <i class="fa-solid fa-heart"></i>
+          <div>
+            <h3>مجموعة تعارف شباب وبنات</h3>
+            <p>تعارف محترم للجميع ✨</p>
+          </div>
+        </button>
+
+        <button class="group-item" onclick="openRoom('group_games','مجموعة ألعاب','تحديات وألعاب')">
+          <i class="fa-solid fa-gamepad"></i>
+          <div>
+            <h3>مجموعة ألعاب</h3>
+            <p>تحديات، مسابقات، ووناسة 🎮</p>
+          </div>
+        </button>
+
+        <button class="group-item" onclick="openRoom('group_swalif','مجموعة سوالف','سوالف وضحك')">
+          <i class="fa-solid fa-mug-hot"></i>
+          <div>
+            <h3>مجموعة سوالف</h3>
+            <p>قعدة سوالف خفيفة ☕</p>
+          </div>
+        </button>
+
+        <button class="group-item" onclick="openRoom('group_friends','مجموعة صداقة','كوّن أصدقاء جدد')">
+          <i class="fa-solid fa-handshake"></i>
+          <div>
+            <h3>مجموعة صداقة</h3>
+            <p>صداقات جديدة ومحترمة 🤝</p>
+          </div>
+        </button>
+
+        <button class="group-item" onclick="openRoom('group_funny','مجموعة صور مضحكة','ميمز وضحك')">
+          <i class="fa-solid fa-face-grin-squint-tears"></i>
+          <div>
+            <h3>مجموعة صور مضحكة</h3>
+            <p>صور ومقاطع مضحكة للجميع 😂</p>
+          </div>
+        </button>
+      </div>
+    </section>
+
+    <!-- شاشة الرومات الصوتية -->
+    <section id="voiceRoomsScreen" class="screen">
+      <div class="voice-header-row">
+        <div class="section-title">الغرف الصوتية</div>
+        <div class="section-hint small">رومات + شات لكل روم</div>
+      </div>
+
+      <button class="create-room-btn" onclick="createVoiceRoom()">
+        <span><i class="fa-solid fa-plus"></i> إنشاء روم جديد</span>
+      </button>
+
+      <div class="voice-tabs">
+        <button class="voice-tab active" data-filter="all" onclick="filterVoiceRooms('all')">الكل</button>
+        <button class="voice-tab" data-filter="taarof" onclick="filterVoiceRooms('taarof')">تعارف</button>
+        <button class="voice-tab" data-filter="games" onclick="filterVoiceRooms('games')">ألعاب</button>
+        <button class="voice-tab" data-filter="swalif" onclick="filterVoiceRooms('swalif')">سوالف</button>
+        <button class="voice-tab" data-filter="friends" onclick="filterVoiceRooms('friends')">صداقة</button>
+      </div>
+
+      <div id="voiceRoomsList" class="rooms-list"></div>
+    </section>
+
+  </main>
+
+</div>
+
+<!-- Toast إشعار المايك -->
+<div id="micToast" class="toast" style="display:none;">
+  <div class="toast-content">
+    <div class="toast-icon">
+      <i class="fa-solid fa-microphone-lines"></i>
+    </div>
+    <div class="toast-text">
+      <div class="toast-title">الميكروفون الصوتي قريباً</div>
+      <div class="toast-subtitle">حالياً متاحة الدردشة النصية داخل الروم فقط. 😉</div>
+    </div>
+    <button class="toast-close" onclick="hideMicToast()">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
   </div>
+</div>
 
-  <!-- Firebase compat -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
-  <!-- كود التطبيق -->
-  <script src="app.js"></script>
+<!-- كود التطبيق -->
+<script src="app.js"></script>
 </body>
 </html>
