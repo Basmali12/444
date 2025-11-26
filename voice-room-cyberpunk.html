@@ -5,7 +5,6 @@
   <title>روم صوتي – شات أبو أمير (Cyberpunk)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- فونت وأيقونات -->
   <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -79,7 +78,6 @@
       overflow: hidden;
     }
 
-    /* رأس الروم */
     .room-header {
       display: flex;
       align-items: center;
@@ -145,7 +143,6 @@
       box-shadow: 0 10px 25px #000000aa;
     }
 
-    /* المايكات */
     .mics-block {
       margin-top: 6px;
       padding: 12px 10px 14px;
@@ -254,7 +251,6 @@
       box-shadow: none;
     }
 
-    /* الشات + الموجودين */
     .main-columns {
       display: flex;
       flex-direction: column;
@@ -399,7 +395,6 @@
       border: 1px solid #22c55e55;
     }
 
-    /* قسم التحكم في الاتصال + اللوج */
     .call-panel {
       margin-top: 14px;
       padding: 10px 8px 4px;
@@ -664,8 +659,8 @@
       </div>
 
       <div style="margin-top:6px;font-size:11px;color:#9ca3af;">
-        بعد إنشاء الاتصال، خلي صديقك يضغط (الانضمام للاتصال).  
-        الصوت يطلع من المقطع التالي:
+        بعد إنشاء الاتصال، خَلّي صديقك يضغط (الانضمام للاتصال).  
+        الصوت يطلع من هنا:
       </div>
       <audio id="remoteAudio" controls></audio>
 
@@ -685,7 +680,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
 <script>
-  // ===== 1) إعداد Firebase =====
+  // ===== Firebase =====
   const firebaseConfig = {
     apiKey: "AIzaSyBPapPdivEQO1UPqQdCRTBI6ct8KZDtqyw",
     authDomain: "sjfie-bed64.firebaseapp.com",
@@ -697,17 +692,16 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  // ===== 2) قراءة معطيات من الرابط =====
+  // ===== قراءة معطيات من الرابط =====
   const urlParams = new URLSearchParams(window.location.search);
-  const roomIdFromUrl = urlParams.get("roomId") || "voice_room_cyberpunk_1";
-  const roomNameFromUrl = urlParams.get("roomName") || "روم صوتي – شات أبو أمير";
-  const userNameFromUrl = urlParams.get("user") || "ضيف";
+  const roomIdFromUrl  = urlParams.get("roomId")   || "voice_room_cyberpunk_1";
+  const roomNameFromUrl= urlParams.get("roomName") || "روم صوتي – شات أبو أمير";
+  const userNameFromUrl= urlParams.get("user")     || "ضيف";
 
-  document.getElementById("roomTitle").textContent = roomNameFromUrl;
+  document.getElementById("roomTitle").textContent    = roomNameFromUrl;
   document.getElementById("roomSubtitle").textContent = "Cyberpunk – " + roomNameFromUrl;
-  document.getElementById("roomIdLabel").textContent = roomIdFromUrl;
+  document.getElementById("roomIdLabel").textContent  = roomIdFromUrl;
 
-  // نخزن اسم المستخدم نفس ما سويت بالموقع الأساسي
   const localName = localStorage.getItem("chat_display_name") || userNameFromUrl;
   const myName = localName || "ضيف";
   const myUid = (function () {
@@ -719,26 +713,22 @@
     return uid;
   })();
 
-  // نحدث البادج الخاص بعدد المتصلين (بشكل بسيط)
   document.getElementById("onlineText").textContent = "متصل الآن";
 
-  // ===== 3) إدارة الموجودين بالروم (Firestore) =====
-  const presenceRef = db.collection("voiceRoomPresence").doc(roomIdFromUrl);
+  // ===== حضور الروم =====
+  const presenceRef      = db.collection("voiceRoomPresence").doc(roomIdFromUrl);
   const presenceUsersRef = presenceRef.collection("users");
 
-  // تسجيل وجودي في الروم
   presenceUsersRef.doc(myUid).set({
     uid: myUid,
     name: myName,
     joinedAt: firebase.firestore.FieldValue.serverTimestamp()
   }).catch(() => {});
 
-  // إزالة وجودي عند الخروج من الصفحة
   window.addEventListener("beforeunload", () => {
     presenceUsersRef.doc(myUid).delete().catch(() => {});
   });
 
-  // متابعة الموجودين بالروم
   presenceUsersRef.orderBy("joinedAt", "asc").onSnapshot(snap => {
     const listEl = document.getElementById("participantsList");
     listEl.innerHTML = "";
@@ -760,7 +750,7 @@
     document.getElementById("membersCount").textContent = count + " متصل";
   });
 
-  // ===== 4) شات الروم =====
+  // ===== شات الروم =====
   const chatRef = db.collection("voiceRoomMessages")
                     .doc(roomIdFromUrl)
                     .collection("messages");
@@ -806,10 +796,10 @@
     }
   });
 
-  // ===== 5) إدارة المايكات (واجهة فقط – ليس لها علاقة بالـ WebRTC نفسه) =====
+  // ===== المايكات (UI + ربط بالمايك الحقيقي) =====
   let currentMicSlot = null;
 
-  function handleMicSlotClick(slot) {
+  async function handleMicSlotClick(slot) {
     const micButtons = document.querySelectorAll(".mic-circle");
     const labels = [];
     for (let i = 1; i <= 5; i++) {
@@ -819,7 +809,7 @@
     const btn = document.querySelector('.mic-circle[data-slot="' + slot + '"]');
     if (!btn) return;
 
-    // إذا كنت على نفس المايك – أتركه
+    // لو كنت على نفس المايك – أتركه
     if (currentMicSlot === slot) {
       btn.classList.remove("mic-active");
       labels[slot].textContent = "ضيف";
@@ -838,9 +828,19 @@
     currentMicSlot = slot;
     btn.classList.add("mic-active");
     labels[slot].textContent = myName || "أنت";
+
+    // 🔊 هنا نربط المايك الحقيقي – نضمن أنه يشتغل
+    try {
+      await startMic();
+    } catch (e) {
+      // لو صار خطأ بالمايك، نرجع نحرر المايك UI
+      btn.classList.remove("mic-active");
+      labels[slot].textContent = "ضيف";
+      currentMicSlot = null;
+    }
   }
 
-  // ===== 6) WebRTC – إعداد السيرفرات (STUN / TURN من metered.ca) =====
+  // ===== WebRTC + TURN/STUN =====
   const iceServers = [
     { urls: "stun:stun.relay.metered.ca:80" },
     {
@@ -874,7 +874,7 @@
   let roomUnsub = null;
   let callerIceUnsub = null;
   let calleeIceUnsub = null;
-  let pendingCandidates = []; // حتى لا يطلع remoteDescription is null
+  let pendingCandidates = [];
 
   const logBox = document.getElementById("logBox");
 
@@ -885,7 +885,6 @@
     console.log(msg);
   }
 
-  // تهيئة PeerConnection
   function createPeerConnection() {
     pc = new RTCPeerConnection({ iceServers });
 
@@ -919,7 +918,7 @@
     };
   }
 
-  // ===== 7) تشغيل المايك =====
+  // ===== تشغيل المايك =====
   async function startMic() {
     try {
       if (!localStream) {
@@ -930,26 +929,25 @@
     } catch (err) {
       log("Error starting microphone: " + err);
       alert("يجب السماح للمتصفح باستخدام المايكروفون.");
+      throw err;
     }
   }
 
   let isCaller = false;
 
-  // ===== 8) إنشاء الاتصال (الطرف الأول) =====
+  // ===== إنشاء الاتصال (الطرف الأول) =====
   async function createRoomCall() {
     try {
       isCaller = true;
       await ensureMicStream();
       createPeerConnection();
 
-      // إضافة المسارات
       localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
 
       roomDocRef = db.collection("webrtcRooms").doc(roomIdFromUrl);
       callerCandidatesRef = roomDocRef.collection("callerCandidates");
       calleeCandidatesRef = roomDocRef.collection("calleeCandidates");
 
-      // حذف بيانات قديمة لنفس الروم
       await callerCandidatesRef.get().then(s => s.forEach(d => d.ref.delete())).catch(()=>{});
       await calleeCandidatesRef.get().then(s => s.forEach(d => d.ref.delete())).catch(()=>{});
       await roomDocRef.set({ createdAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
@@ -960,14 +958,12 @@
 
       log("Room created with offer, waiting for answer...");
 
-      // الاستماع لوصول الـ answer
       roomUnsub = roomDocRef.onSnapshot(async snapshot => {
         const data = snapshot.data();
         if (!pc.currentRemoteDescription && data && data.answer) {
           const answer = new RTCSessionDescription(data.answer);
           await pc.setRemoteDescription(answer);
           log("Room updated with answer.");
-          // إضافة الـ ICE التي كانت معلقة
           pendingCandidates.forEach(c => {
             pc.addIceCandidate(new RTCIceCandidate(c)).catch(err=>{
               log("Error add pending ICE (caller): " + err);
@@ -977,7 +973,6 @@
         }
       });
 
-      // الاستماع لـ ICE من الطرف الثاني
       calleeIceUnsub = calleeCandidatesRef.onSnapshot(snapshot => {
         snapshot.docChanges().forEach(change => {
           if (change.type === "added") {
@@ -992,7 +987,7 @@
     }
   }
 
-  // ===== 9) الانضمام للاتصال (الطرف الثاني) =====
+  // ===== الانضمام للاتصال (الطرف الثاني) =====
   async function joinRoomCall() {
     try {
       isCaller = false;
@@ -1019,7 +1014,6 @@
       await pc.setLocalDescription(answer);
       await roomDocRef.set({ answer: { type: answer.type, sdp: answer.sdp } }, { merge: true });
 
-      // الاستماع لـ ICE من الطرف الأول
       callerIceUnsub = callerCandidatesRef.onSnapshot(snapshot => {
         snapshot.docChanges().forEach(change => {
           if (change.type === "added") {
@@ -1034,7 +1028,6 @@
     }
   }
 
-  // إضافة ICE بشكل آمن بدون remoteDescription is null
   function handleIncomingCandidate(candidateData, role) {
     log(`New ${role} ICE candidate from Firestore.`);
     if (!candidateData) return;
@@ -1044,7 +1037,6 @@
         log(`Error addIceCandidate (${role}): ` + err);
       });
     } else {
-      // نخزنها مؤقتاً
       pendingCandidates.push(candidateData);
     }
   }
@@ -1055,7 +1047,7 @@
     }
   }
 
-  // ===== 10) إنهاء الاتصال =====
+  // ===== إنهاء الاتصال =====
   async function hangUpCall() {
     log("--- hangUp() called ---");
 
@@ -1088,7 +1080,6 @@
     log("Call ended.");
   }
 
-  // رجوع للتطبيق الرئيسي
   function goBackToMain() {
     window.location.href = "index.html";
   }
