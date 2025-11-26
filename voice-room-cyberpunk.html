@@ -2,177 +2,187 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>روم صوتي – شات أبو أمير</title>
+  <title>روم صوتي – شات أبو أمير (Cyberpunk)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- فونت وأيقونات -->
   <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
-    :root {
-      --bg-main: #020617;
-      --card-bg: rgba(15, 23, 42, 0.95);
-      --neon-green: #22c55e;
-      --text-main: #e5e7eb;
-      --text-dim: #9ca3af;
-      --border-soft: rgba(148, 163, 184, 0.18);
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: "Cairo", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #1d0843 0, #020617 45%, #020617 100%);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: stretch;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, sans-serif;
     }
 
-    .page-wrapper {
-      width: 100%;
-      max-width: 520px;
-      margin: 0 auto;
-      padding: 16px 12px 28px;
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 10% 10%, #ff00ea33 0, transparent 60%),
+        radial-gradient(circle at 90% 0, #00e5ff33 0, transparent 55%),
+        radial-gradient(circle at 0 100%, #00ff9d22 0, transparent 55%),
+        radial-gradient(circle at 100% 100%, #ff910022 0, transparent 55%),
+        #050816;
+      color: #e5f0ff;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 16px;
     }
 
     .room-shell {
-      background: linear-gradient(135deg, #22d3ee 0%, #4c1d95 40%, #0f172a 100%);
+      width: 100%;
+      max-width: 520px;
+      margin: auto;
+      background: linear-gradient(135deg, #050816dd, #020617ee);
       border-radius: 28px;
-      padding: 3px;
-      box-shadow: 0 0 35px rgba(56, 189, 248, 0.3);
+      padding: 14px;
+      position: relative;
+      overflow: hidden;
+      box-shadow:
+        0 0 0 1px #22d3ee33,
+        0 25px 60px #000000cc;
+      backdrop-filter: blur(20px);
+      border: 1px solid #1e293b;
+    }
+
+    .room-shell::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        conic-gradient(from 200deg,
+          #22d3ee22,
+          #a855f733,
+          #22c55e22,
+          #f9731622,
+          #22d3ee22);
+      opacity: 0.55;
+      filter: blur(40px);
+      animation: spinGlow 22s linear infinite;
+      z-index: -1;
+    }
+
+    @keyframes spinGlow {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
     }
 
     .room-inner {
-      border-radius: 26px;
-      background: radial-gradient(circle at top, rgba(129, 140, 248, 0.08), rgba(15, 23, 42, 0.98));
-      padding: 12px 10px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      border-radius: 24px;
+      padding: 16px 14px 18px;
+      background: radial-gradient(circle at top left, #1e293b88 0, transparent 55%),
+                  radial-gradient(circle at bottom right, #020617dd 0, #020617ee 55%);
+      position: relative;
+      overflow: hidden;
     }
 
+    /* رأس الروم */
     .room-header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 6px 4px 4px;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #020617dd, #020617ee);
+      border: 1px solid #1f2937;
+      box-shadow: 0 0 20px #0ea5e933;
+      margin-bottom: 14px;
     }
 
-    .title-block {
+    .room-title-block {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 4px;
     }
 
     .room-title {
-      font-size: 18px;
-      font-weight: 700;
-      display: flex;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+    }
+
+    .room-sub {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .pill {
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      display: inline-flex;
       align-items: center;
       gap: 6px;
-    }
-
-    .room-title span.icon {
-      display: inline-flex;
-      width: 26px;
-      height: 26px;
-      border-radius: 999px;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(circle at top, #22c55e 0%, #15803d 60%);
-      box-shadow: 0 0 16px rgba(34, 197, 94, 0.7);
+      background: radial-gradient(circle at 10% 0, #22c55ecc 0, #16a34a88 35%, #166534 75%);
       color: #ecfdf5;
-      font-size: 15px;
+      box-shadow: 0 0 18px #22c55e55;
+      border: 1px solid #bbf7d0;
+      white-space: nowrap;
     }
 
-    .room-subtitle {
-      font-size: 11px;
-      color: var(--text-dim);
+    .pill-dot {
+      width: 8px; height: 8px;
+      border-radius: 999px;
+      background: #bbf7d0;
+      box-shadow: 0 0 12px #bbf7d0;
     }
 
     .back-btn {
-      width: 36px;
-      height: 36px;
+      width: 42px;
+      height: 42px;
       border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.98));
-      color: #e5e7eb;
+      border: 1px solid #1f2937;
+      background: radial-gradient(circle at 30% 0%, #22d3ee44 0, #020617ff 45%);
       display: inline-flex;
       align-items: center;
       justify-content: center;
       font-size: 18px;
-      cursor: pointer;
-      box-shadow: 0 0 12px rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      box-shadow: 0 10px 25px #000000aa;
     }
 
-    .back-btn:active { transform: translateY(1px) scale(0.98); }
-
-    .status-pill {
-      align-self: flex-start;
-      margin-inline-start: 4px;
-      margin-top: 4px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: radial-gradient(circle at top, rgba(16, 185, 129, 0.25), rgba(15, 23, 42, 0.95));
-      border: 1px solid rgba(45, 212, 191, 0.6);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      color: #a5f3fc;
-    }
-
-    .status-pill .dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: #22c55e;
-      box-shadow: 0 0 10px rgba(34, 197, 94, 0.9);
-    }
-
-    .mics-card {
-      background: rgba(15, 23, 42, 0.96);
+    /* المايكات */
+    .mics-block {
+      margin-top: 6px;
+      padding: 12px 10px 14px;
+      background: radial-gradient(circle at 10% 0%, #4c1d9560 0, #020617fa 55%);
       border-radius: 22px;
-      border: 1px solid var(--border-soft);
-      padding: 10px 10px 12px;
-      box-shadow: 0 18px 35px rgba(15, 23, 42, 0.8);
+      border: 1px solid #312e81;
+      box-shadow: 0 0 0 1px #4c1d95aa,
+                  0 18px 40px #000000dd;
     }
 
-    .mics-header-row {
+    .mics-top-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 6px;
-      font-size: 13px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: #9ca3af;
     }
 
-    .mics-header-row .title {
+    .mics-label {
+      font-weight: 600;
+      color: #e5e7eb;
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-weight: 600;
+      gap: 8px;
     }
 
-    .mics-header-row .title i {
+    .mics-label i {
       color: #22c55e;
-      text-shadow: 0 0 12px rgba(34, 197, 94, 0.9);
-    }
-
-    .mics-header-row .hint {
-      font-size: 11px;
-      color: var(--text-dim);
+      text-shadow: 0 0 10px #22c55e;
     }
 
     .mics-row {
-      margin-top: 4px;
       display: flex;
       justify-content: space-between;
-      gap: 7px;
+      gap: 6px;
+      margin-top: 10px;
     }
 
     .mic-slot {
@@ -181,355 +191,501 @@
       flex-direction: column;
       align-items: center;
       gap: 4px;
+      font-size: 11px;
     }
 
     .mic-circle {
       width: 60px;
       height: 60px;
       border-radius: 999px;
-      border: 2px solid rgba(148, 163, 184, 0.45);
+      border: none;
+      background: radial-gradient(circle at 30% 0%, #0f172a, #020617);
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-      background:
-        radial-gradient(circle at 30% 0%, rgba(248, 250, 252, 0.07), transparent 55%),
-        radial-gradient(circle at 80% 120%, rgba(59, 130, 246, 0.45), rgba(15, 23, 42, 1) 70%);
       color: #e5e7eb;
-      font-size: 20px;
       cursor: pointer;
-      box-shadow: 0 0 14px rgba(37, 99, 235, 0.6);
-      position: relative;
-      overflow: hidden;
+      box-shadow:
+        0 0 0 1px #22d3ee55,
+        0 0 18px #22d3ee55;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
     }
 
     .mic-circle::before {
       content: "";
       position: absolute;
-      inset: -40%;
-      background: conic-gradient(
-        from 180deg,
-        rgba(59, 130, 246, 0.1),
-        rgba(236, 72, 153, 0.2),
-        rgba(56, 189, 248, 0.3),
-        rgba(59, 130, 246, 0.1)
-      );
-      opacity: 0;
-      transition: opacity 0.35s ease;
+      inset: -3px;
+      border-radius: inherit;
+      background:
+        radial-gradient(circle at 30% 0, #22d3eecc, transparent 60%),
+        radial-gradient(circle at 70% 90%, #a855f7aa, transparent 60%);
+      opacity: 0.8;
+      z-index: -1;
     }
 
-    .mic-circle i {
-      position: relative;
-      z-index: 1;
-      text-shadow: 0 0 12px rgba(56, 189, 248, 0.95);
+    .mic-circle span {
+      font-size: 22px;
+      text-shadow: 0 0 12px #22d3eeaa;
     }
 
-    .mic-name-label { font-size: 11px; color: var(--text-dim); }
+    .mic-name {
+      color: #e5e7eb;
+    }
 
     .mic-circle.mic-active {
-      border-color: rgba(45, 212, 191, 0.9);
-      box-shadow: 0 0 22px rgba(45, 212, 191, 0.95);
+      background: radial-gradient(circle at 30% 0%, #22c55e, #166534);
+      box-shadow:
+        0 0 0 1px #bbf7d0,
+        0 0 20px #22c55ecc,
+        0 0 35px #22c55e99;
     }
 
-    .mic-circle.mic-active::before { opacity: 0.6; }
-
-    .mic-circle.mic-busy {
-      border-color: rgba(248, 113, 113, 0.8);
-      box-shadow: 0 0 18px rgba(248, 113, 113, 0.8);
+    .mic-circle.mic-muted {
+      background: radial-gradient(circle at 30% 0%, #991b1b, #450a0a);
+      box-shadow:
+        0 0 0 1px #fecaca,
+        0 0 17px #ef4444aa;
     }
 
-    .mic-circle.mic-busy i {
-      color: #fecaca;
-      text-shadow: 0 0 10px rgba(248, 113, 113, 0.9);
+    .mic-circle.mic-disabled {
+      opacity: 0.35;
+      cursor: default;
+      box-shadow: none;
     }
 
-    .bottom-grid {
-      margin-top: 8px;
-      display: grid;
-      grid-template-columns: 1.6fr 1fr;
-      gap: 8px;
+    /* الشات + الموجودين */
+    .main-columns {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 14px;
     }
 
-    .chat-card,
-    .users-card {
-      background: rgba(15, 23, 42, 0.96);
+    .panel {
+      background: radial-gradient(circle at 0 0, #0f172acc 0, #020617f5 60%);
       border-radius: 20px;
-      border: 1px solid var(--border-soft);
-      padding: 8px 9px 9px;
-      box-shadow: 0 18px 35px rgba(15, 23, 42, 0.85);
-      min-height: 140px;
+      border: 1px solid #1f2937;
+      padding: 10px 10px 12px;
+      box-shadow: 0 12px 30px #000000cc;
     }
 
-    .section-head {
+    .panel-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 12px;
-      margin-bottom: 6px;
+      font-size: 13px;
+      margin-bottom: 8px;
     }
 
-    .section-head span.label {
-      display: flex;
+    .panel-header span {
+      display: inline-flex;
       align-items: center;
-      gap: 5px;
-      font-weight: 600;
+      gap: 6px;
     }
 
-    .section-head span.label i {
-      color: #38bdf8;
-      text-shadow: 0 0 10px rgba(56, 189, 248, 0.9);
+    .panel-header i {
+      color: #22d3ee;
     }
 
-    .section-head span.hint {
-      font-size: 10px;
-      color: var(--text-dim);
-    }
-
-    .messages-area {
-      height: 145px;
-      max-height: 145px;
+    .chat-messages {
+      max-height: 210px;
+      min-height: 120px;
       overflow-y: auto;
-      padding: 4px 2px 2px;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(148, 163, 184, 0.8) transparent;
+      border-radius: 14px;
+      padding: 6px 4px;
+      background: #020617ee;
+      border: 1px solid #111827;
       font-size: 12px;
+      scrollbar-width: thin;
+      scrollbar-color: #22d3ee44 transparent;
     }
 
-    .messages-area::-webkit-scrollbar { width: 4px; }
-    .messages-area::-webkit-scrollbar-thumb {
-      background: rgba(148, 163, 184, 0.8);
-      border-radius: 999px;
+    .chat-row {
+      margin-bottom: 4px;
+      padding: 4px 6px;
+      border-radius: 8px;
+      background: #020617;
     }
 
-    .room-message-item {
-      padding: 4px 5px 5px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.95));
-      border: 1px solid rgba(55, 65, 81, 0.7);
-      margin-bottom: 5px;
-    }
-
-    .msg-header {
-      display: flex;
-      justify-content: space-between;
+    .chat-meta {
       font-size: 10px;
-      margin-bottom: 1px;
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 2px;
     }
 
-    .msg-name { font-weight: 600; }
-    .msg-time { color: #9ca3af; font-size: 9px; }
-    .msg-text { font-size: 11px; }
+    .chat-meta strong {
+      color: #e5e7eb;
+    }
+
+    .chat-text {
+      font-size: 12px;
+      color: #e5e7eb;
+      word-wrap: break-word;
+    }
 
     .chat-input-row {
       margin-top: 6px;
-      border-radius: 999px;
-      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.98));
-      border: 1px solid rgba(55, 65, 81, 0.7);
-      padding: 3px 4px 3px 3px;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
     }
 
     .chat-input-row input {
       flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      background: #020617;
+      padding: 8px 12px;
       color: #e5e7eb;
-      font-size: 11px;
-      padding: 4px 4px;
+      font-size: 12px;
+      outline: none;
     }
 
-    .chat-input-row input::placeholder { color: #6b7280; }
+    .chat-input-row input::placeholder {
+      color: #6b7280;
+    }
 
     .send-btn {
-      width: 30px;
-      height: 30px;
+      width: 38px;
+      height: 38px;
       border-radius: 999px;
       border: none;
-      background: radial-gradient(circle at top, #22c55e, #15803d);
-      display: flex;
+      background: radial-gradient(circle at 30% 0, #22d3ee, #0f766e);
+      color: white;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      color: white;
+      font-size: 16px;
+      box-shadow: 0 0 20px #22d3eeaa;
       cursor: pointer;
-      box-shadow: 0 0 15px rgba(34, 197, 94, 0.9);
-      font-size: 14px;
     }
 
-    .send-btn:active { transform: translateY(1px) scale(0.96); }
-
-    .users-list {
-      height: 145px;
-      max-height: 145px;
+    .participants-list {
+      max-height: 120px;
       overflow-y: auto;
-      padding-top: 2px;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(148, 163, 184, 0.8) transparent;
+      border-radius: 14px;
+      padding: 6px;
+      background: #020617ee;
+      border: 1px solid #111827;
       font-size: 12px;
     }
 
-    .users-list::-webkit-scrollbar { width: 4px; }
-    .users-list::-webkit-scrollbar-thumb {
-      background: rgba(148, 163, 184, 0.8);
-      border-radius: 999px;
-    }
-
-    .user-pill {
-      border-radius: 999px;
-      padding: 4px 7px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(55, 65, 81, 0.7);
+    .participant-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      padding: 4px 6px;
+      border-radius: 10px;
+      background: #020617;
       margin-bottom: 4px;
-      gap: 4px;
     }
 
-    .user-pill-main {
+    .participant-name {
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
     }
 
-    .user-avatar {
-      width: 20px;
-      height: 20px;
+    .badge-pill {
+      padding: 2px 8px;
       border-radius: 999px;
-      background: radial-gradient(circle at top, #38bdf8, #1d4ed8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      color: #eff6ff;
+      font-size: 10px;
+      background: #22c55e1a;
+      color: #bbf7d0;
+      border: 1px solid #22c55e55;
     }
 
-    .user-name { font-size: 11px; }
-    .user-tag { font-size: 9px; color: #a5b4fc; }
+    /* قسم التحكم في الاتصال + اللوج */
+    .call-panel {
+      margin-top: 14px;
+      padding: 10px 8px 4px;
+      border-radius: 20px;
+      background: radial-gradient(circle at 0 0, #1d1b4b, #020617);
+      border: 1px solid #312e81;
+      box-shadow: 0 14px 30px #000000cc;
+      font-size: 12px;
+    }
 
-    @media (max-width: 460px) {
-      .page-wrapper { padding-inline: 10px; }
-      .bottom-grid { grid-template-columns: 1fr; }
-      .messages-area,
-      .users-list {
-        height: 135px;
-        max-height: 135px;
+    .call-steps-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .call-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin: 4px 0;
+    }
+
+    .call-row span.step-label {
+      min-width: 150px;
+      color: #9ca3af;
+    }
+
+    .btn-sm {
+      border-radius: 999px;
+      border: none;
+      padding: 6px 12px;
+      font-size: 11px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-mic {
+      background: radial-gradient(circle at 30% 0, #22c55e, #0f766e);
+      color: white;
+      box-shadow: 0 0 18px #22c55eaa;
+    }
+
+    .btn-create {
+      background: radial-gradient(circle at 30% 0, #22d3ee, #0ea5e9);
+      color: white;
+      box-shadow: 0 0 18px #22d3eeaa;
+    }
+
+    .btn-join {
+      background: radial-gradient(circle at 30% 0, #a855f7, #7c3aed);
+      color: white;
+      box-shadow: 0 0 18px #a855f7aa;
+    }
+
+    .btn-hang {
+      background: radial-gradient(circle at 30% 0, #ef4444, #b91c1c);
+      color: white;
+      box-shadow: 0 0 18px #ef4444aa;
+    }
+
+    .hint-ok {
+      color: #bbf7d0;
+      font-size: 11px;
+    }
+
+    .log-title {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .log-box {
+      width: 100%;
+      height: 110px;
+      margin-top: 4px;
+      border-radius: 10px;
+      border: 1px solid #0f172a;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 11px;
+      padding: 6px;
+      resize: none;
+      direction: ltr;
+      white-space: pre-wrap;
+    }
+
+    .room-id-pill {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .room-id-pill code {
+      background: #020617;
+      border-radius: 999px;
+      padding: 3px 9px;
+      border: 1px solid #1f2937;
+      color: #e5e7eb;
+      direction: ltr;
+      font-size: 11px;
+    }
+
+    audio {
+      width: 100%;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 480px) {
+      .room-shell {
+        padding: 10px;
+        border-radius: 24px;
+      }
+      .room-inner {
+        padding: 12px 10px 14px;
+        border-radius: 20px;
       }
     }
   </style>
 </head>
 <body>
 
-<div class="page-wrapper">
-  <div class="room-shell">
-    <div class="room-inner">
+<div class="room-shell">
+  <div class="room-inner">
+    <!-- رأس الروم -->
+    <div class="room-header">
+      <button class="back-btn" onclick="goBackToMain()">
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
 
-      <div class="room-header">
-        <div class="title-block">
-          <div class="room-title">
-            <span class="icon"><i class="fa-solid fa-signal"></i></span>
-            روم صوتي – شات أبو أمير
-          </div>
-          <div class="room-subtitle" id="roomSubtitle">شات + ٥ مايكات – Cyberpunk</div>
-          <div class="status-pill" id="onlineStatus">
-            <span class="dot"></span>
-            <span id="onlineCountLabel">0 متصل الآن</span>
-          </div>
+      <div class="room-title-block">
+        <div id="roomTitle" class="room-title">روم صوتي – شات أبو أمير</div>
+        <div id="roomSubtitle" class="room-sub">Cyberpunk – شات + مايكات</div>
+      </div>
+
+      <div id="onlinePill" class="pill">
+        <span class="pill-dot"></span>
+        <span id="onlineText">متصل 1</span>
+        <i class="fa-solid fa-signal"></i>
+      </div>
+    </div>
+
+    <!-- المايكات -->
+    <div class="mics-block">
+      <div class="mics-top-row">
+        <div class="mics-label">
+          <i class="fa-solid fa-microphone-lines"></i>
+          <span>المايكات المتاحة</span>
         </div>
-        <button class="back-btn" onclick="goBackToMain()">
-          <i class="fa-solid fa-arrow-right"></i>
+        <span>اضغط على المايك للحجز / الترك</span>
+      </div>
+
+      <div class="mics-row">
+        <div class="mic-slot">
+          <button class="mic-circle" data-slot="1" onclick="handleMicSlotClick(1)">
+            <span><i class="fa-solid fa-microphone"></i></span>
+          </button>
+          <div class="mic-name" id="mic-name-1">ضيف</div>
+        </div>
+        <div class="mic-slot">
+          <button class="mic-circle" data-slot="2" onclick="handleMicSlotClick(2)">
+            <span><i class="fa-solid fa-microphone"></i></span>
+          </button>
+          <div class="mic-name" id="mic-name-2">ضيف</div>
+        </div>
+        <div class="mic-slot">
+          <button class="mic-circle" data-slot="3" onclick="handleMicSlotClick(3)">
+            <span><i class="fa-solid fa-microphone"></i></span>
+          </button>
+          <div class="mic-name" id="mic-name-3">ضيف</div>
+        </div>
+        <div class="mic-slot">
+          <button class="mic-circle" data-slot="4" onclick="handleMicSlotClick(4)">
+            <span><i class="fa-solid fa-microphone"></i></span>
+          </button>
+          <div class="mic-name" id="mic-name-4">ضيف</div>
+        </div>
+        <div class="mic-slot">
+          <button class="mic-circle" data-slot="5" onclick="handleMicSlotClick(5)">
+            <span><i class="fa-solid fa-microphone"></i></span>
+          </button>
+          <div class="mic-name" id="mic-name-5">ضيف</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- الأعمدة: الشات + الموجودين -->
+    <div class="main-columns">
+      <!-- الشات -->
+      <div class="panel">
+        <div class="panel-header">
+          <span><i class="fa-solid fa-comments"></i> دردشة الروم</span>
+          <span style="font-size:11px;color:#9ca3af;">تظهر للكل داخل الروم</span>
+        </div>
+        <div id="chatMessages" class="chat-messages"></div>
+        <div class="chat-input-row">
+          <input id="chatInput" type="text"
+                 placeholder="اكتب رسالة تظهر لكل الموجودين في الروم...">
+          <button class="send-btn" onclick="sendRoomMessage()">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- الموجودين -->
+      <div class="panel">
+        <div class="panel-header">
+          <span><i class="fa-solid fa-users"></i> الموجودين بالروم</span>
+          <span id="membersCount" style="font-size:11px;color:#9ca3af;">0 أعضاء</span>
+        </div>
+        <div id="participantsList" class="participants-list"></div>
+      </div>
+    </div>
+
+    <!-- التحكم في الاتصال الصوتي + اللوج -->
+    <div class="call-panel">
+      <div class="call-steps-title">
+        <i class="fa-solid fa-wave-square"></i>
+        <span>خطوات الاتصال الصوتي (WebRTC)</span>
+      </div>
+
+      <div class="call-row">
+        <span class="step-label">١ – تشغيل المايك (عند كل شخص)</span>
+        <button class="btn-sm btn-mic" onclick="startMic()">
+          <i class="fa-solid fa-microphone"></i> تشغيل المايك
+        </button>
+        <span id="micReadyText" class="hint-ok" style="display:none;">
+          ✔ المايك اشتغل، كمل للخطوة ٢.
+        </span>
+      </div>
+
+      <div class="call-row">
+        <span class="step-label">٢ – إنشاء غرفة الاتصال (الطرف الأول)</span>
+        <button class="btn-sm btn-create" onclick="createRoomCall()">
+          ⚡ إنشاء الاتصال (الطرف الأول)
         </button>
       </div>
 
-      <div class="mics-card">
-        <div class="mics-header-row">
-          <div class="title">
-            <i class="fa-solid fa-microphone-lines"></i>
-            <span>المايكات المتاحة</span>
-          </div>
-          <div class="hint">اضغط على المايك للحجز / الترك</div>
-        </div>
-
-        <div class="mics-row">
-          <div class="mic-slot">
-            <button class="mic-circle" data-slot="1" onclick="handleMicClick(1)">
-              <i class="fa-solid fa-microphone-lines"></i>
-            </button>
-            <span class="mic-name-label" id="mic-label-1">متاح</span>
-          </div>
-          <div class="mic-slot">
-            <button class="mic-circle" data-slot="2" onclick="handleMicClick(2)">
-              <i class="fa-solid fa-microphone-lines"></i>
-            </button>
-            <span class="mic-name-label" id="mic-label-2">متاح</span>
-          </div>
-          <div class="mic-slot">
-            <button class="mic-circle" data-slot="3" onclick="handleMicClick(3)">
-              <i class="fa-solid fa-microphone-lines"></i>
-            </button>
-            <span class="mic-name-label" id="mic-label-3">متاح</span>
-          </div>
-          <div class="mic-slot">
-            <button class="mic-circle" data-slot="4" onclick="handleMicClick(4)">
-              <i class="fa-solid fa-microphone-lines"></i>
-            </button>
-            <span class="mic-name-label" id="mic-label-4">متاح</span>
-          </div>
-          <div class="mic-slot">
-            <button class="mic-circle" data-slot="5" onclick="handleMicClick(5)">
-              <i class="fa-solid fa-microphone-lines"></i>
-            </button>
-            <span class="mic-name-label" id="mic-label-5">متاح</span>
-          </div>
-        </div>
+      <div class="call-row">
+        <span class="step-label">٣ – الانضمام للاتصال (الطرف الثاني)</span>
+        <button class="btn-sm btn-join" onclick="joinRoomCall()">
+          🔗 الانضمام للاتصال (الطرف الثاني)
+        </button>
       </div>
 
-      <div class="bottom-grid">
-        <div class="chat-card">
-          <div class="section-head">
-            <span class="label">
-              <i class="fa-solid fa-comments"></i>
-              دردشة الروم
-            </span>
-            <span class="hint">تظهر لكل الموجودين داخل الروم</span>
-          </div>
-
-          <div id="room-messages" class="messages-area"></div>
-
-          <div class="chat-input-row">
-            <input id="roomMessageInput" type="text" placeholder="اكتب رسالة تظهر لكل الموجودين في الروم...">
-            <button id="roomSendBtn" class="send-btn">
-              <i class="fa-solid fa-paper-plane"></i>
-            </button>
-          </div>
-        </div>
-
-        <div class="users-card">
-          <div class="section-head">
-            <span class="label">
-              <i class="fa-solid fa-users"></i>
-              الموجودين بالروم
-            </span>
-          </div>
-          <div id="room-users" class="users-list"></div>
-        </div>
+      <div class="call-row">
+        <span class="step-label">٤ – إنهاء الاتصال</span>
+        <button class="btn-sm btn-hang" onclick="hangUpCall()">
+          ✖ إنهاء الاتصال
+        </button>
       </div>
 
+      <div style="margin-top:6px;font-size:11px;color:#9ca3af;">
+        بعد إنشاء الاتصال، خلي صديقك يضغط (الانضمام للاتصال).  
+        الصوت يطلع من المقطع التالي:
+      </div>
+      <audio id="remoteAudio" controls></audio>
+
+      <div class="log-title">سجل الأحداث (لكشف الأخطاء):</div>
+      <textarea id="logBox" class="log-box" readonly></textarea>
+
+      <div class="room-id-pill">
+        <span>رمز الغرفة الصوتية (ثابت لهذا الروم):</span>
+        <code id="roomIdLabel"></code>
+      </div>
     </div>
   </div>
 </div>
 
+<!-- Firebase compat -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
 <script>
-  // 🧩 هنا الفرق المهم: نقرأ roomId من الرابط
-  const params = new URLSearchParams(window.location.search);
-  const roomIdFromUrl = params.get("roomId");
-  const ROOM_ID = roomIdFromUrl || "voice_cyberpunk_main";
-
-  // Firebase config نفسه مالك
+  // ===== 1) إعداد Firebase =====
   const firebaseConfig = {
     apiKey: "AIzaSyBPapPdivEQO1UPqQdCRTBI6ct8KZDtqyw",
     authDomain: "sjfie-bed64.firebaseapp.com",
@@ -538,222 +694,404 @@
     messagingSenderId: "67450727104",
     appId: "1:67450727104:web:4d271f44bab9740571db25"
   };
-
-  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  const roomRef = db.collection("voiceRooms").doc(ROOM_ID);
-  const messagesRef = roomRef.collection("messages");
-  const participantsRef = roomRef.collection("participants");
+  // ===== 2) قراءة معطيات من الرابط =====
+  const urlParams = new URLSearchParams(window.location.search);
+  const roomIdFromUrl = urlParams.get("roomId") || "voice_room_cyberpunk_1";
+  const roomNameFromUrl = urlParams.get("roomName") || "روم صوتي – شات أبو أمير";
+  const userNameFromUrl = urlParams.get("user") || "ضيف";
 
-  // اسم المستخدم من التخزين
-  let currentUserId = localStorage.getItem("chat_user_id");
-  if (!currentUserId) {
-    currentUserId = "u_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
-    localStorage.setItem("chat_user_id", currentUserId);
-  }
-  let currentUserName =
-    localStorage.getItem("chat_user_name") ||
-    localStorage.getItem("chatUserName") ||
-    "ضيف";
+  document.getElementById("roomTitle").textContent = roomNameFromUrl;
+  document.getElementById("roomSubtitle").textContent = "Cyberpunk – " + roomNameFromUrl;
+  document.getElementById("roomIdLabel").textContent = roomIdFromUrl;
 
-  async function ensureRoomDoc() {
-    const snap = await roomRef.get();
-    if (!snap.exists) {
-      await roomRef.set({
-        title: "روم شات أبو أمير – Cyberpunk",
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
+  // نخزن اسم المستخدم نفس ما سويت بالموقع الأساسي
+  const localName = localStorage.getItem("chat_display_name") || userNameFromUrl;
+  const myName = localName || "ضيف";
+  const myUid = (function () {
+    let uid = localStorage.getItem("voice_uid");
+    if (!uid) {
+      uid = "v_" + Date.now() + "_" + Math.floor(Math.random() * 999999);
+      localStorage.setItem("voice_uid", uid);
     }
-  }
+    return uid;
+  })();
 
-  function setupMessagesListener() {
-    const messagesContainer = document.getElementById("room-messages");
-    if (!messagesContainer) return;
+  // نحدث البادج الخاص بعدد المتصلين (بشكل بسيط)
+  document.getElementById("onlineText").textContent = "متصل الآن";
 
-    messagesRef.orderBy("createdAt", "asc").onSnapshot(snapshot => {
-      messagesContainer.innerHTML = "";
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const div = document.createElement("div");
-        div.className = "room-message-item";
-        let time = "";
-        if (data.createdAt && data.createdAt.toDate) {
-          time = data.createdAt.toDate().toLocaleTimeString("ar-IQ", {
-            hour: "2-digit", minute: "2-digit"
-          });
-        }
-        div.innerHTML = `
-          <div class="msg-header">
-            <span class="msg-name">${data.senderName || "مستخدم"}</span>
-            <span class="msg-time">${time}</span>
-          </div>
-          <div class="msg-text">${data.text || ""}</div>
-        `;
-        messagesContainer.appendChild(div);
-      });
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    });
-  }
+  // ===== 3) إدارة الموجودين بالروم (Firestore) =====
+  const presenceRef = db.collection("voiceRoomPresence").doc(roomIdFromUrl);
+  const presenceUsersRef = presenceRef.collection("users");
 
-  async function sendRoomMessage() {
-    const input = document.getElementById("roomMessageInput");
-    if (!input) return;
-    const text = input.value.trim();
-    if (!text) return;
-    input.value = "";
+  // تسجيل وجودي في الروم
+  presenceUsersRef.doc(myUid).set({
+    uid: myUid,
+    name: myName,
+    joinedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(() => {});
 
-    await messagesRef.add({
-      text,
-      senderId: currentUserId,
-      senderName: currentUserName,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-  }
-
-  function updateMicUI(state) {
-    for (let i = 1; i <= 5; i++) {
-      const fieldOwnerId = "mic" + i + "OwnerId";
-      const fieldOwnerName = "mic" + i + "OwnerName";
-      const ownerId = state[fieldOwnerId] || null;
-      const ownerName = state[fieldOwnerName] || "متاح";
-
-      const micBtn = document.querySelector('.mic-circle[data-slot="' + i + '"]');
-      const micLabel = document.getElementById("mic-label-" + i);
-
-      if (micBtn) {
-        micBtn.classList.remove("mic-active", "mic-busy");
-        if (!ownerId) {
-          // فاضي
-        } else if (ownerId === currentUserId) {
-          micBtn.classList.add("mic-active");
-        } else {
-          micBtn.classList.add("mic-busy");
-        }
-      }
-
-      if (micLabel) {
-        if (!ownerId) micLabel.textContent = "متاح";
-        else if (ownerId === currentUserId) micLabel.textContent = "أنت";
-        else micLabel.textContent = ownerName || "مستخدم";
-      }
-    }
-  }
-
-  roomRef.onSnapshot(docSnap => {
-    if (!docSnap.exists) return;
-    const data = docSnap.data();
-    updateMicUI(data);
+  // إزالة وجودي عند الخروج من الصفحة
+  window.addEventListener("beforeunload", () => {
+    presenceUsersRef.doc(myUid).delete().catch(() => {});
   });
 
-  async function handleMicClick(slot) {
-    const fieldOwnerId = "mic" + slot + "OwnerId";
-    const fieldOwnerName = "mic" + slot + "OwnerName";
+  // متابعة الموجودين بالروم
+  presenceUsersRef.orderBy("joinedAt", "asc").onSnapshot(snap => {
+    const listEl = document.getElementById("participantsList");
+    listEl.innerHTML = "";
+    let count = 0;
+    snap.forEach(doc => {
+      count++;
+      const u = doc.data();
+      const row = document.createElement("div");
+      row.className = "participant-row";
+      row.innerHTML = `
+        <div class="participant-name">
+          <i class="fa-solid fa-signal"></i>
+          <span>${u.name || "مستخدم"}</span>
+        </div>
+        <span class="badge-pill">${u.uid === myUid ? "أنت" : "متصل"}</span>
+      `;
+      listEl.appendChild(row);
+    });
+    document.getElementById("membersCount").textContent = count + " متصل";
+  });
 
-    await db.runTransaction(async tx => {
-      const snap = await tx.get(roomRef);
-      let data = snap.exists ? snap.data() : {};
+  // ===== 4) شات الروم =====
+  const chatRef = db.collection("voiceRoomMessages")
+                    .doc(roomIdFromUrl)
+                    .collection("messages");
 
-      const currentOwner = data[fieldOwnerId] || null;
+  chatRef.orderBy("timestamp", "asc").onSnapshot(snap => {
+    const box = document.getElementById("chatMessages");
+    box.innerHTML = "";
+    snap.forEach(doc => {
+      const m = doc.data();
+      const div = document.createElement("div");
+      div.className = "chat-row";
+      const time = m.timestamp
+        ? m.timestamp.toDate().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})
+        : "";
+      div.innerHTML = `
+        <div class="chat-meta">
+          <strong>${m.sender || "مستخدم"}</strong>
+          <span>${time}</span>
+        </div>
+        <div class="chat-text">${m.text || ""}</div>
+      `;
+      box.appendChild(div);
+    });
+    box.scrollTop = box.scrollHeight;
+  });
 
-      if (!currentOwner) {
-        data[fieldOwnerId] = currentUserId;
-        data[fieldOwnerName] = currentUserName;
-      } else if (currentOwner === currentUserId) {
-        data[fieldOwnerId] = null;
-        data[fieldOwnerName] = null;
-      } else {
-        alert("هذا المايك محجوز حالياً.");
+  function sendRoomMessage() {
+    const input = document.getElementById("chatInput");
+    const text = (input.value || "").trim();
+    if (!text) return;
+    chatRef.add({
+      sender: myName,
+      text,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    input.value = "";
+  }
+
+  document.getElementById("chatInput").addEventListener("keypress", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendRoomMessage();
+    }
+  });
+
+  // ===== 5) إدارة المايكات (واجهة فقط – ليس لها علاقة بالـ WebRTC نفسه) =====
+  let currentMicSlot = null;
+
+  function handleMicSlotClick(slot) {
+    const micButtons = document.querySelectorAll(".mic-circle");
+    const labels = [];
+    for (let i = 1; i <= 5; i++) {
+      labels[i] = document.getElementById("mic-name-" + i);
+    }
+
+    const btn = document.querySelector('.mic-circle[data-slot="' + slot + '"]');
+    if (!btn) return;
+
+    // إذا كنت على نفس المايك – أتركه
+    if (currentMicSlot === slot) {
+      btn.classList.remove("mic-active");
+      labels[slot].textContent = "ضيف";
+      currentMicSlot = null;
+      return;
+    }
+
+    // حرر المايك القديم
+    if (currentMicSlot !== null) {
+      const oldBtn = document.querySelector('.mic-circle[data-slot="' + currentMicSlot + '"]');
+      if (oldBtn) oldBtn.classList.remove("mic-active");
+      if (labels[currentMicSlot]) labels[currentMicSlot].textContent = "ضيف";
+    }
+
+    // حجز المايك الجديد
+    currentMicSlot = slot;
+    btn.classList.add("mic-active");
+    labels[slot].textContent = myName || "أنت";
+  }
+
+  // ===== 6) WebRTC – إعداد السيرفرات (STUN / TURN من metered.ca) =====
+  const iceServers = [
+    { urls: "stun:stun.relay.metered.ca:80" },
+    {
+      urls: "turn:global.relay.metered.ca:80",
+      username: "298f82b9f76dd02a4339d78d",
+      credential: "oe03DDgXofO1Pxs5",
+    },
+    {
+      urls: "turn:global.relay.metered.ca:80?transport=tcp",
+      username: "298f82b9f76dd02a4339d78d",
+      credential: "oe03DDgXofO1Pxs5",
+    },
+    {
+      urls: "turn:global.relay.metered.ca:443",
+      username: "298f82b9f76dd02a4339d78d",
+      credential: "oe03DDgXofO1Pxs5",
+    },
+    {
+      urls: "turn:global.relay.metered.ca:443?transport=tcp",
+      username: "298f82b9f76dd02a4339d78d",
+      credential: "oe03DDgXofO1Pxs5",
+    }
+  ];
+
+  let pc = null;
+  let localStream = null;
+  let remoteStream = null;
+  let roomDocRef = null;
+  let callerCandidatesRef = null;
+  let calleeCandidatesRef = null;
+  let roomUnsub = null;
+  let callerIceUnsub = null;
+  let calleeIceUnsub = null;
+  let pendingCandidates = []; // حتى لا يطلع remoteDescription is null
+
+  const logBox = document.getElementById("logBox");
+
+  function log(msg) {
+    const time = new Date().toLocaleTimeString("ar-IQ", {hour12:false});
+    logBox.value += `[${time}] ${msg}\n`;
+    logBox.scrollTop = logBox.scrollHeight;
+    console.log(msg);
+  }
+
+  // تهيئة PeerConnection
+  function createPeerConnection() {
+    pc = new RTCPeerConnection({ iceServers });
+
+    pc.onicecandidate = event => {
+      if (event.candidate && roomDocRef && callerCandidatesRef && calleeCandidatesRef) {
+        const candidateData = event.candidate.toJSON();
+        if (isCaller) {
+          callerCandidatesRef.add(candidateData);
+          log("Caller ICE candidate -> Firestore.");
+        } else {
+          calleeCandidatesRef.add(candidateData);
+          log("Callee ICE candidate -> Firestore.");
+        }
+      }
+    };
+
+    pc.ontrack = event => {
+      if (!remoteStream) {
+        remoteStream = new MediaStream();
+        document.getElementById("remoteAudio").srcObject = remoteStream;
+      }
+      event.streams[0].getTracks().forEach(t => remoteStream.addTrack(t));
+      log("ontrack: remote audio streams received.");
+    };
+
+    pc.oniceconnectionstatechange = () => {
+      log("iceConnectionState: " + pc.iceConnectionState);
+    };
+    pc.onconnectionstatechange = () => {
+      log("connectionState: " + pc.connectionState);
+    };
+  }
+
+  // ===== 7) تشغيل المايك =====
+  async function startMic() {
+    try {
+      if (!localStream) {
+        localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      }
+      document.getElementById("micReadyText").style.display = "inline-block";
+      log("Microphone started successfully.");
+    } catch (err) {
+      log("Error starting microphone: " + err);
+      alert("يجب السماح للمتصفح باستخدام المايكروفون.");
+    }
+  }
+
+  let isCaller = false;
+
+  // ===== 8) إنشاء الاتصال (الطرف الأول) =====
+  async function createRoomCall() {
+    try {
+      isCaller = true;
+      await ensureMicStream();
+      createPeerConnection();
+
+      // إضافة المسارات
+      localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+      roomDocRef = db.collection("webrtcRooms").doc(roomIdFromUrl);
+      callerCandidatesRef = roomDocRef.collection("callerCandidates");
+      calleeCandidatesRef = roomDocRef.collection("calleeCandidates");
+
+      // حذف بيانات قديمة لنفس الروم
+      await callerCandidatesRef.get().then(s => s.forEach(d => d.ref.delete())).catch(()=>{});
+      await calleeCandidatesRef.get().then(s => s.forEach(d => d.ref.delete())).catch(()=>{});
+      await roomDocRef.set({ createdAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      await roomDocRef.set({ offer: { type: offer.type, sdp: offer.sdp } }, { merge: true });
+
+      log("Room created with offer, waiting for answer...");
+
+      // الاستماع لوصول الـ answer
+      roomUnsub = roomDocRef.onSnapshot(async snapshot => {
+        const data = snapshot.data();
+        if (!pc.currentRemoteDescription && data && data.answer) {
+          const answer = new RTCSessionDescription(data.answer);
+          await pc.setRemoteDescription(answer);
+          log("Room updated with answer.");
+          // إضافة الـ ICE التي كانت معلقة
+          pendingCandidates.forEach(c => {
+            pc.addIceCandidate(new RTCIceCandidate(c)).catch(err=>{
+              log("Error add pending ICE (caller): " + err);
+            });
+          });
+          pendingCandidates = [];
+        }
+      });
+
+      // الاستماع لـ ICE من الطرف الثاني
+      calleeIceUnsub = calleeCandidatesRef.onSnapshot(snapshot => {
+        snapshot.docChanges().forEach(change => {
+          if (change.type === "added") {
+            const data = change.doc.data();
+            handleIncomingCandidate(data, "caller");
+          }
+        });
+      });
+
+    } catch (err) {
+      log("Error in createRoomCall: " + err);
+    }
+  }
+
+  // ===== 9) الانضمام للاتصال (الطرف الثاني) =====
+  async function joinRoomCall() {
+    try {
+      isCaller = false;
+      await ensureMicStream();
+      createPeerConnection();
+
+      localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+      roomDocRef = db.collection("webrtcRooms").doc(roomIdFromUrl);
+      callerCandidatesRef = roomDocRef.collection("callerCandidates");
+      calleeCandidatesRef = roomDocRef.collection("calleeCandidates");
+
+      const roomSnapshot = await roomDocRef.get();
+      if (!roomSnapshot.exists || !roomSnapshot.data().offer) {
+        alert("لا يوجد اتصال منشأ بعد. خلي الطرف الأول يضغط (إنشاء الاتصال).");
         return;
       }
 
-      tx.set(roomRef, data, { merge: true });
-    });
-  }
+      const offer = roomSnapshot.data().offer;
+      await pc.setRemoteDescription(new RTCSessionDescription(offer));
+      log("Offer loaded from Firestore, creating answer...");
 
-  function setupParticipantsListener() {
-    const usersList = document.getElementById("room-users");
-    const countLabel = document.getElementById("onlineCountLabel");
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+      await roomDocRef.set({ answer: { type: answer.type, sdp: answer.sdp } }, { merge: true });
 
-    participantsRef.onSnapshot(snapshot => {
-      if (usersList) usersList.innerHTML = "";
-      let count = 0;
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        count++;
-        if (!usersList) return;
-        const pill = document.createElement("div");
-        pill.className = "user-pill";
-        const initials = (data.name || "؟").trim().charAt(0);
-        pill.innerHTML = `
-          <div class="user-pill-main">
-            <div class="user-avatar">${initials}</div>
-            <div>
-              <div class="user-name">${data.name || "مستخدم"}</div>
-              <div class="user-tag">${data.tag || ""}</div>
-            </div>
-          </div>
-          <i class="fa-solid fa-signal"></i>
-        `;
-        usersList.appendChild(pill);
+      // الاستماع لـ ICE من الطرف الأول
+      callerIceUnsub = callerCandidatesRef.onSnapshot(snapshot => {
+        snapshot.docChanges().forEach(change => {
+          if (change.type === "added") {
+            const data = change.doc.data();
+            handleIncomingCandidate(data, "callee");
+          }
+        });
       });
-      if (countLabel) countLabel.textContent = count + " متصل الآن";
-    });
+
+    } catch (err) {
+      log("Error in joinRoomCall: " + err);
+    }
   }
 
-  async function joinRoomPresence() {
-    await participantsRef.doc(currentUserId).set({
-      name: currentUserName,
-      joinedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
-      tag: "متصل"
-    }, { merge: true });
+  // إضافة ICE بشكل آمن بدون remoteDescription is null
+  function handleIncomingCandidate(candidateData, role) {
+    log(`New ${role} ICE candidate from Firestore.`);
+    if (!candidateData) return;
 
-    setInterval(() => {
-      participantsRef.doc(currentUserId).update({
-        lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-      }).catch(() => {});
-    }, 30000);
-
-    window.addEventListener("beforeunload", () => {
-      participantsRef.doc(currentUserId).delete().catch(() => {});
-    });
+    if (pc && pc.remoteDescription) {
+      pc.addIceCandidate(new RTCIceCandidate(candidateData)).catch(err => {
+        log(`Error addIceCandidate (${role}): ` + err);
+      });
+    } else {
+      // نخزنها مؤقتاً
+      pendingCandidates.push(candidateData);
+    }
   }
 
+  async function ensureMicStream() {
+    if (!localStream) {
+      await startMic();
+    }
+  }
+
+  // ===== 10) إنهاء الاتصال =====
+  async function hangUpCall() {
+    log("--- hangUp() called ---");
+
+    if (callerIceUnsub) callerIceUnsub();
+    if (calleeIceUnsub) calleeIceUnsub();
+    if (roomUnsub) roomUnsub();
+
+    callerIceUnsub = calleeIceUnsub = roomUnsub = null;
+    pendingCandidates = [];
+
+    if (pc) {
+      pc.getSenders().forEach(s => s.track && s.track.stop());
+      pc.close();
+      pc = null;
+    }
+
+    if (remoteStream) {
+      remoteStream.getTracks().forEach(t => t.stop());
+      remoteStream = null;
+      document.getElementById("remoteAudio").srcObject = null;
+    }
+
+    if (roomDocRef) {
+      try {
+        await roomDocRef.collection("callerCandidates").get().then(s => s.forEach(d => d.ref.delete()));
+        await roomDocRef.collection("calleeCandidates").get().then(s => s.forEach(d => d.ref.delete()));
+      } catch (e) {}
+    }
+
+    log("Call ended.");
+  }
+
+  // رجوع للتطبيق الرئيسي
   function goBackToMain() {
-    window.location.href = "./";
+    window.location.href = "index.html";
   }
-
-  window.addEventListener("DOMContentLoaded", async () => {
-    await ensureRoomDoc();
-    setupMessagesListener();
-    setupParticipantsListener();
-    joinRoomPresence().catch(() => {});
-
-    const sendBtn = document.getElementById("roomSendBtn");
-    const msgInput = document.getElementById("roomMessageInput");
-
-    if (sendBtn) sendBtn.addEventListener("click", sendRoomMessage);
-    if (msgInput) {
-      msgInput.addEventListener("keydown", e => {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          sendRoomMessage();
-        }
-      });
-    }
-
-    // لو جاي من قائمة الرومات ومعك اسم الروم في URL
-    const roomName = params.get("roomName");
-    if (roomName) {
-      const subtitle = document.getElementById("roomSubtitle");
-      if (subtitle) subtitle.textContent = roomName + " – Cyberpunk";
-    }
-  });
-
-  window.handleMicClick = handleMicClick;
-  window.sendRoomMessage = sendRoomMessage;
-  window.goBackToMain = goBackToMain;
 </script>
 
 </body>
