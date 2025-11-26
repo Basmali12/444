@@ -35,7 +35,6 @@ const msgInput = document.getElementById("msgInput");
 const micBtn = document.getElementById("micBtn");
 const imgInput = document.getElementById("imgInput");
 const usersList = document.getElementById("usersList");
-const voiceRoomsList = document.getElementById("voiceRoomsList");
 const voiceMicsBar = document.getElementById("voiceMicsBar");
 const micToast = document.getElementById("micToast");
 
@@ -64,7 +63,6 @@ window.addEventListener("load", () => {
     appEl.style.display = "none";
   }
 
-  // أحداث
   msgInput.addEventListener("keypress", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -117,7 +115,7 @@ function handleBack() {
   goHome();
 }
 
-// ===== 6) فتح روم (عام / مجموعة / صوتي / خاص) =====
+// ===== 6) فتح روم (عام / مجموعة / خاص) =====
 function openRoom(roomId, title, subtitle) {
   currentRoomId = roomId;
   currentRoomTitle = title;
@@ -134,7 +132,7 @@ function openRoom(roomId, title, subtitle) {
   startMessagesListener();
 }
 
-// إظهار/إخفاء شريط المايكات حسب نوع الروم
+// شريط المايكات في الشات (مستقبلاً لو حبّيت تربطه بشيء)
 function updateVoiceMicsVisibility() {
   if (currentRoomId && currentRoomId.startsWith("voice_")) {
     voiceMicsBar.style.display = "flex";
@@ -258,7 +256,7 @@ function handleImageSelect(e) {
   reader.readAsDataURL(file);
 }
 
-// ===== 10) تسجيل صوت =====
+// ===== 10) تسجيل صوت (رسائل صوتية في الشات) =====
 async function toggleRecording() {
   if (!currentRoomId) {
     alert("أدخل غرفة أولاً.");
@@ -378,7 +376,7 @@ function loadUsersList() {
       usersList.innerHTML = "";
       snapshot.forEach((doc) => {
         const u = doc.data();
-        if (!u.uid || u.uid === myUid) return; // لا تعرض نفسك
+        if (!u.uid || u.uid === myUid) return;
 
         const item = document.createElement("div");
         item.className = "user-item";
@@ -410,7 +408,6 @@ function loadUsersList() {
     });
 }
 
-// روم خاص بيني وبين مستخدم ثاني
 function openPrivateChat(otherUid, otherName) {
   const ids = [myUid, otherUid].sort();
   const roomId = "dm_" + ids[0] + "_" + ids[1];
@@ -423,107 +420,16 @@ function openGroupsScreen() {
   headerSubtitle.textContent = "المجموعات";
 }
 
-// ===== 14) الرومات الصوتية =====
-let currentVoiceFilter = "all";
-
+// ===== 14) الغرف الصوتية – تفتح صفحة Cyberpunk فقط =====
 function openVoiceRoomsScreen() {
   showScreen("voiceRoomsScreen");
   headerSubtitle.textContent = "الغرف الصوتية";
-  loadVoiceRooms();
 }
 
-function createVoiceRoom() {
-  const name = prompt("اسم الروم الصوتي:");
-  if (!name) return;
-  const cat =
-    prompt("فئة الروم (taarof / games / swalif / friends):", "swalif") || "swalif";
-
-  db.collection("voiceRooms")
-    .add({
-      name,
-      category: cat,
-      ownerId: myUid,
-      ownerName: myName || "مستخدم",
-      listenersCount: 1,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    })
-    .then(() => {
-      loadVoiceRooms();
-    });
-}
-
-function loadVoiceRooms() {
-  voiceRoomsList.innerHTML = "جارِ التحميل...";
-  db.collection("voiceRooms")
-    .orderBy("createdAt", "desc")
-    .limit(50)
-    .get()
-    .then((snapshot) => {
-      voiceRoomsList.innerHTML = "";
-      snapshot.forEach((doc) => {
-        const r = doc.data();
-        if (currentVoiceFilter !== "all" && r.category !== currentVoiceFilter) return;
-
-        const card = document.createElement("div");
-        card.className = "room-card";
-
-        const listeners = r.listenersCount || 0;
-
-        card.innerHTML = `
-          <div class="room-header">
-            <div>
-              <div class="room-title">${r.name}</div>
-              <div class="room-category">${r.category || "عام"}</div>
-            </div>
-            <i class="fa-solid fa-microphone-lines"></i>
-          </div>
-          <div class="room-meta">
-            <span><i class="fa-solid fa-user"></i> ${listeners} متواجد</span>
-          </div>
-          <div class="room-footer">
-            <span>شات + صوت (تسجيلات)</span>
-            <button class="join-room-btn" onclick="joinVoiceRoom('${doc.id}','${r.name.replace(/'/g,"\\'")}')">
-              دخول الروم
-            </button>
-          </div>
-        `;
-        voiceRoomsList.appendChild(card);
-      });
-
-      if (!voiceRoomsList.innerHTML.trim()) {
-        voiceRoomsList.innerHTML =
-          "<p>ماكو رومات بعد. أنشئ واحد من الزر بالأعلى.</p>";
-      }
-    })
-    .catch(() => {
-      voiceRoomsList.innerHTML = "<p>خطأ في تحميل الرومات.</p>";
-    });
-}
-
-function filterVoiceRooms(cat) {
-  currentVoiceFilter = cat;
-  document
-    .querySelectorAll(".voice-tab")
-    .forEach((btn) => btn.classList.toggle("active", btn.dataset.filter === cat));
-  loadVoiceRooms();
-}
-
-function joinVoiceRoom(docId, name) {
-  const roomId = "voice_" + docId;
-  openRoom(roomId, "🎧 " + name, "روم صوتي + دردشة");
-  db.collection("voiceRooms")
-    .doc(docId)
-    .update({
-      listenersCount: firebase.firestore.FieldValue.increment(1)
-    })
-    .catch(() => {});
-}
-
-// ===== 15) TOAST المايك =====
+// ===== 15) TOAST المايك في الشات =====
 function showMicToast() {
   if (!micToast) return;
   micToast.style.display = "block";
-  // trigger transition
   requestAnimationFrame(() => {
     micToast.classList.add("show");
   });
@@ -542,25 +448,23 @@ function hideMicToast() {
   }, 250);
 }
 
-// ضغط المايكات في الروم الصوتي
+// شريط المايكات في الشات (مو مرتبط بـ WebRTC – مجرد شكل حالياً)
 function handleMicClick(slot) {
-  if (!currentRoomId || !currentRoomId.startsWith("voice_")) {
-    return;
-  }
   showMicToast();
 }
 
-// فتح روم الصوت السايبر بانك من داخل شات أبو أمير
+// ===== 16) فتح روم الصوت السايبر بانك من داخل شات أبو أمير =====
 function goToVoiceRoom(roomId, roomName) {
-  // هنا نقرأ الاسم الصحيح المخزون في التطبيق
   const userName =
-    localStorage.getItem("chat_display_name") || myName || "ضيف";
+    localStorage.getItem("chat_display_name") ||
+    localStorage.getItem("voiceUserName") ||
+    "ضيف";
 
   const url =
-    "voice-room-cyberpunk.html"
-    + "?roomId="   + encodeURIComponent(roomId)
-    + "&roomName=" + encodeURIComponent(roomName)
-    + "&user="     + encodeURIComponent(userName);
+    "voice-room-cyberpunk.html" +
+    "?roomId=" + encodeURIComponent(roomId) +
+    "&roomName=" + encodeURIComponent(roomName) +
+    "&user=" + encodeURIComponent(userName);
 
   window.location.href = url;
 }
