@@ -236,7 +236,6 @@
         remoteStream.addTrack(track);
       });
 
-      // محاولة تشغيل الصوت (لو المتصفح حاجب autoplay)
       remoteAudio.play().catch(err => {
         addLog("Autoplay blocked, user must press play on audio element. " + err.message);
       });
@@ -254,14 +253,9 @@
     pc.onconnectionstatechange = () => {
       addLog("connectionState: " + pc.connectionState);
     };
-
-    pc.onicecandidate = (event) => {
-      if (!event.candidate) {
-        addLog("All ICE candidates gathered.");
-      }
-    };
   }
 
+  // الطرف الأول
   async function createRoom() {
     roomStatus.textContent = "جاري إنشاء الغرفة...";
     addLog("--- createRoom() called ---");
@@ -272,10 +266,13 @@
     callerCandidatesCollection = roomRef.collection("callerCandidates");
     calleeCandidatesCollection = roomRef.collection("calleeCandidates");
 
+    // حفظ ICE للطرف الأول
     pc.onicecandidate = async (event) => {
       if (event.candidate) {
         addLog("Caller ICE candidate -> Firestore.");
         await callerCandidatesCollection.add(event.candidate.toJSON());
+      } else {
+        addLog("Caller ICE gathering complete.");
       }
     };
 
@@ -289,27 +286,29 @@
 
     roomStatus.textContent = "✅ تم إنشاء الاتصال. خلي صديقك يضغط (الانضمام للاتصال).";
 
+    // ننتظر الـ answer وبعدين نربط الـ ICE مال الطرف الثاني
     roomRef.onSnapshot(async snap => {
       const data = snap.data();
       if (!pc.currentRemoteDescription && data && data.answer) {
         addLog("Got answer from callee, setRemoteDescription.");
         const answer = new RTCSessionDescription(data.answer);
         await pc.setRemoteDescription(answer);
-      }
-    });
 
-    calleeCandidatesCollection.onSnapshot(snapshot => {
-      snapshot.docChanges().forEach(async change => {
-        if (change.type === "added") {
-          const candidateData = change.doc.data();
-          addLog("New callee ICE candidate from Firestore.");
-          try {
-            await pc.addIceCandidate(new RTCIceCandidate(candidateData));
-          } catch (e) {
-            addLog("Error addIceCandidate (callee): " + e.message);
-          }
-        }
-      });
+        // الآن فقط نسمح بإضافة ICE مال الطرف الثاني
+        calleeCandidatesCollection.onSnapshot(snapshot => {
+          snapshot.docChanges().forEach(async change => {
+            if (change.type === "added") {
+              const candidateData = change.doc.data();
+              addLog("New callee ICE candidate from Firestore (after remoteDescription).");
+              try {
+                await pc.addIceCandidate(new RTCIceCandidate(candidateData));
+              } catch (e) {
+                addLog("Error addIceCandidate (callee): " + e.message);
+              }
+            }
+          });
+        });
+      }
     });
 
     btnCreate.disabled = true;
@@ -317,6 +316,7 @@
     btnHangup.disabled = false;
   }
 
+  // الطرف الثاني
   async function joinRoom() {
     roomStatus.textContent = "جاري الانضمام للغرفة...";
     addLog("--- joinRoom() called ---");
@@ -334,10 +334,13 @@
 
     createPeerConnection();
 
+    // حفظ ICE للطرف الثاني
     pc.onicecandidate = async (event) => {
       if (event.candidate) {
         addLog("Callee ICE candidate -> Firestore.");
         await calleeCandidatesCollection.add(event.candidate.toJSON());
+      } else {
+        addLog("Callee ICE gathering complete.");
       }
     };
 
@@ -354,10 +357,11 @@
     await roomRef.update(roomWithAnswer);
     addLog("Room updated with answer.");
 
+    // بعد ما صارت remoteDescription متضبطة، نضيف ICE مال الطرف الأول
     callerCandidatesCollection.onSnapshot(snapshot => {
       snapshot.docChanges().forEach(async change => {
         if (change.type === "added") {
-          addLog("New caller ICE candidate from Firestore.");
+          addLog("New caller ICE candidate from Firestore (after remoteDescription).");
           const data = change.doc.data();
           try {
             await pc.addIceCandidate(new RTCIceCandidate(data));
